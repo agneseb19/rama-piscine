@@ -16,6 +16,8 @@ const SETTINGS = {
   zoom: 0.045,           // quanto la camera si avvicina dall'inizio alla fine
   hold: [0.06, 0.94],    // in ogni tratto il passaggio alla fase dopo occupa quasi tutto lo scroll (da 0.06 a 0.94)
   lenisLerp: 0.08,
+  phoneWidth: 1.04,      // telefono in verticale: larghezza dell'immagine rispetto allo schermo (1 = intera)
+  phoneCenter: 0.47,     // telefono in verticale: altezza della fascia (0.5 = centro, più basso = più in basso)
   videoSharpen: 0.7,     // nitidezza del video (0 = nessuna, 1.2 = molta)
 };
 
@@ -50,6 +52,7 @@ const uniforms = {
   uOffset: { value: new THREE.Vector2() },
   uFocus: { value: new THREE.Vector2(FOCUS.x, 1 - FOCUS.y) },
   uSeed: { value: 0 },
+  uBand: { value: new THREE.Vector2(SETTINGS.phoneWidth, SETTINGS.phoneCenter) }, // telefono: fascia panoramica
   uFade: { value: 0 },
   uSharpen: { value: 0 },                // nitidezza extra, solo per il video
   uVidTexel: { value: new THREE.Vector2(1 / 1916, 1 / 1080) }, // solo nel tratto video: dissolvenza morbida verso la foto vicina
@@ -61,30 +64,24 @@ const material = new THREE.ShaderMaterial({
     uniform sampler2D tA, tB;
     uniform float uMix, uZoom, uSeed, uFade, uSharpen;
     uniform vec2 uVidTexel;
-    uniform vec2 uRes, uImg, uOffset, uFocus;
+    uniform vec2 uRes, uImg, uOffset, uFocus, uBand;
     varying vec2 vUv;
     float hash(vec2 p){ p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }
     float noise(vec2 p){ vec2 i = floor(p), f = fract(p); f = f*f*(3.-2.*f);
       return mix(mix(hash(i), hash(i+vec2(1,0)), f.x), mix(hash(i+vec2(0,1)), hash(i+vec2(1,1)), f.x), f.y); }
     float fbm(vec2 p){ float v = 0., a = .5; for (int i = 0; i < 5; i++){ v += a * noise(p); p *= 2.03; a *= .5; } return v; }
-    void main(){
-      // "cover": l'immagine riempie lo schermo senza deformarsi
-      float sr = uRes.x / uRes.y, ir = uImg.x / uImg.y;
-      vec2 uv = vUv;
-      if (sr > ir) uv.y = (uv.y - .5) * ir / sr + .5; else uv.x = (uv.x - .5) * sr / ir + .5;
-      // avvicinamento verso la piscina + spostamento col mouse
-      uv = uFocus + (uv - uFocus) / uZoom + uOffset;
-      uv = clamp(uv, .001, .999);
-
-      vec3 a = texture2D(tA, uv).rgb;
-      if (uSharpen > 0.) {
+    // Colore della scena in un punto dell'immagine: foto A, foto B e la transizione a macchie.
+    // "bias" > 0 legge una versione sfocata delle foto (serve per lo sfondo sul telefono).
+    vec3 sceneColor(vec2 uv, float bias){
+      float ir = uImg.x / uImg.y;
+      vec3 a = texture2D(tA, uv, bias).rgb;
+      if (uSharpen > 0. && bias < .5) {
         // maschera di contrasto leggera: recupera il dettaglio perso nella compressione del video
         vec3 blur = (texture2D(tA, uv + vec2(uVidTexel.x, 0.)).rgb + texture2D(tA, uv - vec2(uVidTexel.x, 0.)).rgb
                    + texture2D(tA, uv + vec2(0., uVidTexel.y)).rgb + texture2D(tA, uv - vec2(0., uVidTexel.y)).rgb) * .25;
         a = clamp(a + (a - blur) * uSharpen, 0., 1.);
       }
-      vec3 b = texture2D(tB, uv).rgb;
-
+      vec3 b = texture2D(tB, uv, bias).rgb;
       // la fase nuova cresce a macchie irregolari, partendo dalla piscina e allargandosi
       vec2 q = uv * vec2(ir, 1.);
       float n = fbm(q * 5.5 + uSeed * 7.31) * .75 + fbm(q * 22. + uSeed * 3.1) * .25;
@@ -97,7 +94,33 @@ const material = new THREE.ShaderMaterial({
       // leggera "polvere di cantiere" sul bordo che avanza
       float rim = smoothstep(edge, 0., abs(uMix * .62 - .08 - t)) * step(.001, uMix) * step(uMix, .999);
       col = mix(col, col * .92 + vec3(.04, .03, .02), rim * .5);
-      col = mix(col, b, uFade);
+      return mix(col, b, uFade);
+    }
+    void main(){
+      float sr = uRes.x / uRes.y, ir = uImg.x / uImg.y;
+      // "cover": l'immagine riempie lo schermo senza deformarsi
+      vec2 cover = vUv;
+      if (sr > ir) cover.y = (cover.y - .5) * ir / sr + .5; else cover.x = (cover.x - .5) * sr / ir + .5;
+      cover = uFocus + (cover - uFocus) / uZoom + uOffset;
+
+      // Schermi verticali (telefono): l'immagine si vede intera in larghezza, come una fascia
+      // panoramica, così la piscina non viene tagliata; sopra e sotto la stessa scena sfocata.
+      float fit = smoothstep(1.0, .8, sr) * step(sr, ir);
+      float imgW = mix(max(ir / sr, 1.), uBand.x, fit); // larghezza dell'immagine, in larghezze di schermo
+      float imgH = imgW * sr / ir;                    // altezza dell'immagine, in altezze di schermo
+      float cy = mix(.5, uBand.y, fit);               // centro della fascia (0 = basso, 1 = alto)
+      vec2 band = vec2((vUv.x - .5) / imgW + .5, (vUv.y - cy) / imgH + .5);
+      band = uFocus + (band - uFocus) / uZoom + uOffset;
+
+      float feather = .07;
+      float inBand = smoothstep(0., feather, band.y) * smoothstep(1., 1. - feather, band.y);
+      float mask = mix(1., inBand, step(imgH, .995));
+
+      vec3 col = sceneColor(clamp(band, .001, .999), 0.);
+      if (mask < .999) {
+        vec3 bg = sceneColor(clamp(cover, .001, .999), 5.5) * .82;   // stessa scena, sfocata e un po' più scura
+        col = mix(bg, col, mask);
+      }
       gl_FragColor = vec4(col, 1.);
       #include <colorspace_fragment>
     }`,
@@ -110,7 +133,7 @@ const textures = [];
 const texLoader = new THREE.TextureLoader();
 Promise.all(PHASES.map((p) => new Promise((res, rej) => texLoader.load(p.img, res, undefined, rej))))
   .then((list) => {
-    list.forEach((t) => { t.colorSpace = THREE.SRGBColorSpace; t.minFilter = THREE.LinearFilter; t.generateMipmaps = false; textures.push(t); });
+    list.forEach((t) => { t.colorSpace = THREE.SRGBColorSpace; t.minFilter = THREE.LinearMipmapLinearFilter; t.generateMipmaps = true; textures.push(t); });
     uniforms.uImg.value.set(list[0].image.width, list[0].image.height);
     loader.classList.add('is-hidden');
   })
@@ -134,7 +157,7 @@ const frameCanvas = document.createElement('canvas');
 frameCanvas.width = 1916; frameCanvas.height = 1080; // risoluzione piena: niente perdita di qualità
 const frameCtx = frameCanvas.getContext('2d', { willReadFrequently: false });
 const videoTex = new THREE.CanvasTexture(frameCanvas);
-videoTex.colorSpace = THREE.SRGBColorSpace; videoTex.minFilter = THREE.LinearFilter; videoTex.generateMipmaps = false;
+videoTex.colorSpace = THREE.SRGBColorSpace; videoTex.minFilter = THREE.LinearMipmapLinearFilter; videoTex.generateMipmaps = true;
 let videoReady = false;   // diventa vero solo quando un fotogramma vero è stato disegnato
 let videoTarget = 0;
 const probe = document.createElement('canvas'); probe.width = 8; probe.height = 8;
