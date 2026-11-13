@@ -124,11 +124,11 @@ if (motion) {
 
   // titoli: ogni riga sale da una maschera (lo stesso effetto dei titoli della hero)
   $$('[data-lines]').forEach((el) => {
-    gsap.from($$('.ln > span', el), { yPercent: 125, duration: 1.6, ease: 'expo.out', stagger: .12, scrollTrigger: once(el, 'top 88%') });
+    gsap.fromTo($$('.ln > span', el), { yPercent: 125 }, { yPercent: 0, duration: 1.6, ease: 'expo.out', stagger: .12, scrollTrigger: once(el, 'top 88%') });
   });
   // frasi: le parole arrivano una dopo l'altra
   $$('[data-words]').forEach((el) => {
-    gsap.from($$('.w', el), { y: 14, opacity: 0, duration: 1.4, ease: 'power3.out', stagger: .035, scrollTrigger: once(el) });
+    gsap.fromTo($$('.w', el), { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: 1.4, ease: 'power3.out', stagger: .035, scrollTrigger: once(el) });
   });
   // elementi che salgono dal basso, a gruppi
   gsap.set('[data-up]', { y: 28, opacity: 0 });
@@ -176,12 +176,14 @@ if (motion) {
 
   // lavori: galleria orizzontale (schermi larghi), scorrimento a dito sui telefoni
   const mm = gsap.matchMedia();
-  mm.add('(min-width: 861px)', () => {
+  // su tutti gli schermi: scorrendo in giù la galleria va di lato
+  ScrollTrigger.config({ ignoreMobileResize: true });
+  mm.add('(min-width: 0px)', () => {
     const track = $('#workTrack');
     const dist = () => track.scrollWidth - window.innerWidth;
     const tween = gsap.to(track, {
       x: () => -dist(), ease: 'none',
-      scrollTrigger: { trigger: '.work', start: 'top top', end: () => `+=${dist()}`, pin: true, scrub: 1, invalidateOnRefresh: true, anticipatePin: 1,
+      scrollTrigger: { trigger: '.work', start: 'top top', end: () => `+=${dist()}`, pin: true, scrub: 1, invalidateOnRefresh: true, anticipatePin: 1, refreshPriority: 10,
         onUpdate: (st) => gsap.set('#workBar', { scaleX: st.progress }) },
     });
     $$('.shot').forEach((s) => {
@@ -189,23 +191,17 @@ if (motion) {
       gsap.fromTo(img, { xPercent: -10 }, { xPercent: 0, ease: 'none', scrollTrigger: { trigger: s, containerAnimation: tween, start: 'left right', end: 'right left', scrub: true } });
       gsap.fromTo(s, { rotationY: -16, z: -80, y: 20, transformPerspective: 1600 }, { rotationY: 12, z: -20, y: -6, ease: 'none', scrollTrigger: { trigger: s, containerAnimation: tween, start: 'left right', end: 'right left', scrub: true } });
     });
-    gsap.from('.work-end', { scale: .4, rotate: -90, ease: 'none', scrollTrigger: { trigger: '.work-end', containerAnimation: tween, start: 'left right', end: 'left 70%', scrub: true } });
-  });
-  mm.add('(max-width: 860px)', () => {
-    const pin = $('.work-pin');
-    const upd = () => { const max = pin.scrollWidth - pin.clientWidth; gsap.set('#workBar', { scaleX: max > 0 ? pin.scrollLeft / max : 1 }); };
-    pin.addEventListener('scroll', upd, { passive: true }); upd();
-    return () => pin.removeEventListener('scroll', upd);
+    gsap.fromTo('.work-end', { scale: .4, rotate: -90 }, { scale: 1, rotate: 0, ease: 'none', scrollTrigger: { trigger: '.work-end', containerAnimation: tween, start: 'left right', end: 'left 70%', scrub: true } });
   });
 
   // recensioni: il riepilogo Google si accende, le carte entrano a ventaglio e le stelle si illuminano
-  gsap.from('.g-stars i', { opacity: 0, stagger: .12, duration: 1, ease: 'power2.out', scrollTrigger: once('.g-summary', 'top 90%') });
+  gsap.fromTo('.g-stars i', { opacity: 0 }, { opacity: 1, stagger: .12, duration: 1, ease: 'power2.out', scrollTrigger: once('.g-summary', 'top 90%') });
   const rvs = $$('.rv');
-  gsap.from(rvs, { y: 40, opacity: 0, duration: 1.6, ease: 'power3.out', stagger: .14, scrollTrigger: once('.rv-grid', 'top 85%') });
-  gsap.from($$('.rv-stars i'), { opacity: 0, duration: .8, ease: 'power2.out', stagger: .03, delay: .5, scrollTrigger: once('.rv-grid', 'top 85%') });
+  gsap.fromTo(rvs, { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 1.6, ease: 'power3.out', stagger: .14, scrollTrigger: once('.rv-grid', 'top 85%') });
+  gsap.fromTo($$('.rv-stars i'), { opacity: 0 }, { opacity: 1, duration: .8, ease: 'power2.out', stagger: .03, delay: .5, scrollTrigger: once('.rv-grid', 'top 85%') });
 
   // social: icone che girano, griglia di foto a onda
-  gsap.from('.sc', { x: -30, opacity: 0, duration: 1.4, ease: 'power3.out', stagger: .12, scrollTrigger: once('.social-grid', 'top 88%') });
+  // (icone social: animate in CSS, vedi socialIcons più sotto)
 
   // partner: le carte salgono una dopo l'altra (già con data-up)
 
@@ -213,8 +209,12 @@ if (motion) {
   const word = $('.foot-word');
   if (word) {
     word.innerHTML = [...word.textContent].map((c) => (c === ' ' ? ' ' : `<span class="ch">${c}</span>`)).join('');
-    gsap.from('.foot-word .ch', { yPercent: 110, stagger: .05, ease: 'expo.out', duration: 1.8, scrollTrigger: once(word, 'top 98%') });
+    gsap.fromTo('.foot-word .ch', { yPercent: 110 }, { yPercent: 0, stagger: .05, ease: 'expo.out', duration: 1.8, scrollTrigger: once(word, 'top 98%') });
   }
+
+  // la galleria bloccata allunga la pagina: tutte le animazioni sotto vanno ricalcolate dopo di lei, in ordine di pagina
+  ScrollTrigger.sort();
+  ScrollTrigger.refresh();
 
   // ricalcola le posizioni quando le immagini sono caricate
   window.addEventListener('load', () => ScrollTrigger.refresh());
@@ -362,4 +362,45 @@ if (form) {
   };
   (document.fonts?.ready || Promise.resolve()).then(fit);
   window.addEventListener('resize', fit);
+})();
+
+/* ---------- Icone social: girano ed entrano quando la sezione arriva ---------- */
+(function socialIcons() {
+  const grid = document.querySelector('.social-grid');
+  if (!grid || reduce || !('IntersectionObserver' in window)) return;
+  document.documentElement.classList.add('js-social');
+  const io = new IntersectionObserver(([en]) => { if (en.isIntersecting) { grid.classList.add('is-in'); io.disconnect(); } }, { rootMargin: '0px 0px -10% 0px' });
+  io.observe(grid);
+})();
+
+/* ---------- Recensioni su schermi piccoli: frecce e pallini ---------- */
+(function reviewsSlider() {
+  const grid = document.getElementById('rvGrid');
+  if (!grid) return;
+  const cards = [...grid.children];
+  const dots = document.querySelector('.rv-dots');
+  const prev = document.querySelector('[data-rv="-1"]');
+  const next = document.querySelector('[data-rv="1"]');
+  dots.innerHTML = cards.map(() => '<i></i>').join('');
+  const dotEls = [...dots.children];
+  const current = () => {
+    const x = grid.scrollLeft; let best = 0, d = Infinity;
+    cards.forEach((c, i) => { const dd = Math.abs(c.offsetLeft - grid.offsetLeft - x - parseFloat(getComputedStyle(grid).paddingLeft) + parseFloat(getComputedStyle(grid).paddingLeft)); if (dd < d) { d = dd; best = i; } });
+    return best;
+  };
+  const update = () => {
+    const i = current();
+    dotEls.forEach((el, k) => el.classList.toggle('on', k === i));
+    prev.disabled = grid.scrollLeft < 4;
+    next.disabled = grid.scrollLeft > grid.scrollWidth - grid.clientWidth - 4;
+  };
+  const go = (dir) => {
+    const i = Math.max(0, Math.min(cards.length - 1, current() + dir));
+    grid.scrollTo({ left: cards[i].offsetLeft - cards[0].offsetLeft, behavior: reduce ? 'auto' : 'smooth' });
+  };
+  prev.addEventListener('click', () => go(-1));
+  next.addEventListener('click', () => go(1));
+  grid.addEventListener('scroll', () => requestAnimationFrame(update), { passive: true });
+  window.addEventListener('resize', update);
+  update();
 })();
