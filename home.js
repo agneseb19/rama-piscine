@@ -348,3 +348,17 @@ if (form) {
       .to(o, { v: 50, duration: 1, ease: 'power3.inOut', onUpdate: step });
   }
 })();
+
+/* ---------- Scritta gigante del footer: sempre intera, su qualsiasi schermo ---------- */
+(function fitFootWord() {
+  const el = document.querySelector('.foot-word');
+  if (!el) return;
+  const fit = () => {
+    el.style.fontSize = '100px';
+    const w = el.scrollWidth || 1;
+    const avail = el.clientWidth;
+    el.style.fontSize = `${Math.floor((100 * avail) / w * 0.99)}px`;
+  };
+  (document.fonts?.ready || Promise.resolve()).then(fit);
+  window.addEventListener('resize', fit);
+})();

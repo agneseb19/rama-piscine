@@ -600,3 +600,30 @@ a:hover [data-roll] .r2, button:hover [data-roll] .r2, a:focus-visible [data-rol
   .btn::after, .site-header.dock, .stat, .rv, .cc, .sc, [data-roll] .r1, [data-roll] .r2 { transition: none; }
 }
 .rv-feature { overflow: hidden; }
+
+/* ---------- Sicurezza responsive ---------- */
+/* nessuno scorrimento orizzontale su nessuno schermo (clip non rompe lo sticky della hero) */
+html, body { overflow-x: clip; }
+/* email e indirizzi lunghi vanno a capo invece di allargare la pagina */
+.cc-main, .cc-sub, .foot-cols a, .foot-cols p, .menu-foot a { overflow-wrap: anywhere; }
+@media (max-width: 1180px) { .consult-grid { grid-template-columns: minmax(0, 1fr); } }
+.contact-cards, .consult-info, .form { min-width: 0; }
+
+/* scritta gigante del footer: la misura la calcola home.js per riempire esattamente la larghezza */
+.foot-word { display: block; width: 100%; overflow: visible; }
+
+/* telefoni in orizzontale e schermi bassi: la scena dei servizi torna su due colonne */
+@media (max-height: 560px) and (orientation: landscape) {
+  .scene { height: 320vh; }
+  .scene-sticky { align-items: center; }
+  .scene-grid { grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 24px; padding-top: 56px; }
+  .scene-window { order: 0; aspect-ratio: 16 / 10; }
+  .scene-texts { min-height: 240px; }
+  .st { justify-content: center; gap: 10px; }
+  .st-title { font-size: clamp(26px, 4.4vw, 40px); }
+  .st-text { font-size: 14px; line-height: 1.5; }
+  .st .chips { display: none; }
+  .window-frame { --wy: 12%; --wx: 18%; }
+  .window-title { font-size: clamp(40px, 8vw, 72px); }
+  .window-copy { margin-bottom: 8vh; }
+}
