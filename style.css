@@ -1,0 +1,185 @@
+/* =========================================================
+   Ra.Ma. Piscine — Demo 1 · Dal prato alla piscina
+   ========================================================= */
+:root {
+  --teal: #2daed3;
+  --teal-deep: #0b3b4a;
+  --sun: #fad133;
+  --ink: #0d1a20;
+  --paper: #f4f1ea;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-font-smoothing: antialiased; }
+body {
+  font-family: "Inter", system-ui, sans-serif;
+  background: var(--ink);
+  color: #fff;
+}
+a { color: inherit; text-decoration: none; }
+
+/* Lenis (scroll morbido) */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+
+/* ---------- Loader ---------- */
+.loader {
+  position: fixed; inset: 0; z-index: 50;
+  display: grid; place-content: center; justify-items: center; gap: 14px;
+  background: var(--ink);
+  transition: opacity 1.2s var(--ease-out), visibility 1.2s;
+}
+.loader.is-hidden { opacity: 0; visibility: hidden; }
+.loader-brand { font-family: "Anton", sans-serif; font-size: 28px; letter-spacing: 0.08em; }
+.loader-label { font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; opacity: 0.6; }
+.loader-rule { width: 140px; height: 1px; background: rgba(255,255,255,.15); overflow: hidden; }
+.loader-rule span { display: block; height: 100%; width: 40%; background: var(--teal); animation: load 1.4s var(--ease-out) infinite; }
+@keyframes load { from { transform: translateX(-100%); } to { transform: translateX(260%); } }
+
+/* ---------- Hero ---------- */
+.hero-track { position: relative; height: 430vh; } /* più alto = animazione più lenta */
+.hero-sticky { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; }
+.stage { position: absolute; inset: 0; perspective: 1400px; overflow: hidden; background: #0d1a20; }
+#scene { position: absolute; inset: 0; width: 100%; height: 100%; display: block; transform-origin: 50% 50%; will-change: transform; }
+/* grana fotografica leggerissima */
+.stage::after { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .07; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+.vignette {
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    linear-gradient(to bottom, rgba(6,20,26,.55) 0%, rgba(6,20,26,0) 22%),
+    linear-gradient(to top, rgba(6,20,26,.72) 0%, rgba(6,20,26,.25) 38%, rgba(6,20,26,0) 60%);
+}
+
+.site-header {
+  position: absolute; top: 0; left: 0; right: 0; z-index: 5;
+  display: flex; align-items: center; justify-content: space-between; gap: 24px;
+  padding: 26px clamp(20px, 4vw, 56px);
+  font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 600;
+}
+.wordmark { display: inline-flex; align-items: center; gap: 12px; }
+.wordmark-mark { position: relative; width: 22px; height: 22px; }
+.wordmark-mark span { position: absolute; left: 0; right: 0; height: 3px; border-radius: 3px; background: #fff; }
+.wordmark-mark span:first-child { top: 6px; }
+.wordmark-mark span:last-child { top: 13px; background: var(--teal); width: 70%; }
+.nav { display: flex; gap: 34px; opacity: 0.9; }
+.nav a, .header-cta { position: relative; }
+.nav a::after, .header-cta::after {
+  content: ""; position: absolute; left: 0; bottom: -6px; height: 1px; width: 100%;
+  background: currentColor; transform: scaleX(0); transform-origin: right;
+  transition: transform 0.7s var(--ease-out);
+}
+.nav a:hover::after, .header-cta:hover::after { transform: scaleX(1); transform-origin: left; }
+
+.hero-copy {
+  position: absolute; z-index: 4; left: 50%; bottom: 11vh; transform: translateX(-50%);
+  width: min(1100px, 92vw); text-align: center;
+  display: flex; flex-direction: column; align-items: center;
+}
+.eyebrow {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase; font-weight: 600;
+  opacity: 0.9; margin-bottom: 18px;
+}
+.phase-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--sun); box-shadow: 0 0 0 4px rgba(250,209,51,.18); }
+
+.heading-stage { position: relative; width: 100%; height: clamp(100px, 13.4vw, 196px); }
+.heading {
+  position: absolute; inset: 0;
+  font-family: "Anton", "Impact", sans-serif; font-weight: 400;
+  font-size: clamp(44px, 6.4vw, 96px); line-height: 0.96;
+  text-transform: uppercase; letter-spacing: 0.005em;
+  text-shadow: 0 6px 40px rgba(0,0,0,.25);
+  pointer-events: none;
+}
+.heading .line { display: block; overflow: hidden; padding: 0.14em 0 0.04em; margin-top: -0.14em; }
+.heading .line > span {
+  display: inline-block; transform: translateY(125%);
+  transition: transform 1.4s var(--ease-out), opacity 1.4s var(--ease-out);
+}
+.heading .line:nth-child(2) > span { transition-delay: 0.09s; }
+.heading.is-active .line > span { transform: translateY(0); }
+.heading.is-before .line > span { transform: translateY(-125%); }
+
+.hero-description { max-width: 440px; margin-top: 18px; font-size: 15px; line-height: 1.6; opacity: 0.85; }
+.hero-actions { display: flex; gap: 12px; margin-top: 26px; flex-wrap: wrap; justify-content: center; }
+.btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 15px 24px; border-radius: 999px;
+  font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase;
+  transition: transform 0.6s var(--ease-out), background-color 0.6s var(--ease-out), color 0.6s var(--ease-out);
+}
+.btn span { transition: transform 0.6s var(--ease-out); }
+.btn:hover span { transform: translateX(4px); }
+.btn-primary { background: var(--sun); color: var(--ink); }
+.btn-primary:hover { background: #fff; }
+.btn-ghost { border: 1px solid rgba(255,255,255,.45); backdrop-filter: blur(8px); background: rgba(255,255,255,.06); }
+.btn-ghost:hover { background: rgba(255,255,255,.18); }
+
+.hero-meta {
+  position: absolute; z-index: 4; left: 50%; bottom: 4.5vh; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 18px;
+  font-size: 10px; letter-spacing: 0.26em; text-transform: uppercase; font-weight: 600; opacity: 0.85;
+}
+.progress { width: 120px; height: 1px; background: rgba(255,255,255,.25); overflow: hidden; }
+.progress span { display: block; height: 100%; background: #fff; transform-origin: left; transform: scaleX(0); }
+
+@media (max-width: 860px) {
+  .nav, .header-cta { display: none; }
+  .wordmark { white-space: nowrap; }
+  .heading { font-size: min(38px, 9.2vw); }
+  .heading-stage { height: calc(min(38px, 9.2vw) * 2.5); }
+  .site-header { padding-top: max(18px, env(safe-area-inset-top)); }
+  .hero-description { font-size: 14px; margin-top: 10px; }
+  .hero-copy { bottom: 15vh; }
+  .hero-meta span:first-child { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .heading .line > span { transition: none; }
+}
+
+/* ---------- Impaginazione della versione fotorealistica ----------
+   titolo in alto (sopra il cielo), pulsanti in basso (sul prato):
+   così la piscina, al centro, resta libera */
+.hero-copy { top: 12vh; bottom: 11vh; justify-content: space-between; }
+.copy-top, .copy-bottom { display: flex; flex-direction: column; align-items: center; width: 100%; }
+.copy-bottom .hero-description { display: none; }
+.copy-bottom .hero-actions { margin-top: 0; }
+.vignette {
+  background:
+    linear-gradient(to bottom, rgba(6,20,26,.62) 0%, rgba(6,20,26,.25) 26%, rgba(6,20,26,0) 42%),
+    linear-gradient(to top, rgba(6,20,26,.55) 0%, rgba(6,20,26,0) 22%);
+}
+@media (max-width: 860px) {
+  .hero-copy { top: 13vh; bottom: 7vh; }
+  .copy-bottom .btn-ghost { display: none; }
+  .hero-meta { display: none; }
+}
+
+/* ---------- Hero: adattamenti per tutti gli schermi ---------- */
+.site-header .menu-btn-hero { display: none; }
+@media (max-width: 1180px) and (min-width: 861px) {
+  .nav { gap: 22px; }
+  .site-header { gap: 18px; font-size: 11px; }
+}
+@media (max-width: 1020px) and (min-width: 861px) {
+  .header-cta { display: none; }
+}
+/* telefoni in orizzontale e schermi bassi */
+@media (max-height: 560px) and (orientation: landscape) {
+  .site-header { padding-top: 14px; padding-bottom: 14px; }
+  .hero-copy { top: 15vh; bottom: 6vh; }
+  .heading { font-size: clamp(28px, 5.2vw, 48px); }
+  .heading-stage { height: calc(clamp(28px, 5.2vw, 48px) * 2.4); }
+  .eyebrow { margin-bottom: 8px; }
+  .btn { padding: 11px 18px; }
+  .copy-bottom .btn-ghost, .hero-meta { display: none; }
+}
+/* schermi molto grandi */
+@media (min-width: 1800px) {
+  .heading { font-size: clamp(96px, 5.6vw, 140px); }
+  .heading-stage { height: calc(clamp(96px, 5.6vw, 140px) * 2.1); }
+  .hero-copy { width: min(1500px, 92vw); }
+}

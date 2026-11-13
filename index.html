@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Costruzione piscine su misura | Ra.Ma. Piscine</title>
+  <meta name="description" content="Ra.Ma. Piscine, Valmontone (RM): progettazione, scavo, costruzione e manutenzione di piscine residenziali su misura in tutto il Lazio. Pronta in appena 10 giorni." />
+  <meta name="theme-color" content="#2daed3" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=8" />
+  <link rel="stylesheet" href="home.css?v=8" />
+  <!-- Librerie da CDN: three.js (hero), Lenis (scroll morbido), GSAP + ScrollTrigger (animazioni allo scorrimento) -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+        "lenis": "https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.mjs"
+      }
+    }
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+</head>
+<body>
+  <a class="skip" href="#manifesto">Salta al contenuto</a>
+
+  <div class="loader" id="loader" role="status" aria-live="polite">
+    <span class="loader-brand">RA.MA. PISCINE</span>
+    <span class="loader-label">Apriamo il cantiere</span>
+    <span class="loader-rule"><span></span></span>
+  </div>
+
+  <!-- Barra di scorrimento in alto (come la barra di avanzamento della hero) -->
+  <div class="scrollbar" aria-hidden="true"><span id="scrollBar"></span></div>
+
+  <!-- Barra flottante: compare dopo la hero, si nasconde scendendo e torna risalendo -->
+  <header class="site-header dock" id="dock">
+    <a class="wordmark" href="index.html" aria-label="Ra.Ma. Piscine, torna all'inizio">
+      <img class="wordmark-logo" src="img/rama-piscine.webp" width="52" height="52" alt="" />
+      <span>RA.MA. PISCINE</span>
+    </a>
+    <nav class="nav" aria-label="Menu principale">
+      <a href="chi-siamo.html">Chi siamo</a>
+      <a href="servizi.html">Servizi</a>
+      <a href="le-nostre-piscine.html">Le nostre piscine</a>
+      <a href="contatti.html">Contatti</a>
+    </nav>
+    <a class="header-cta" href="configuratore.html">Configura la tua piscina <span aria-hidden="true">↗</span></a>
+    <button class="menu-btn menu-btn-hero" type="button" aria-controls="menu" aria-expanded="false" data-menu-open>Menu</button>
+  </header>
+
+  <!-- Menu a schermo intero (telefono e tablet) -->
+  <div class="menu" id="menu" hidden data-lenis-prevent role="dialog" aria-modal="true" aria-label="Menu">
+    <div class="menu-head">
+      <span class="wordmark menu-brand"><img class="wordmark-logo" src="img/rama-piscine.webp" width="52" height="52" alt="" /><span>RA.MA. PISCINE</span></span>
+      <button class="menu-btn menu-btn-hero is-close" type="button" data-menu-close>Chiudi</button>
+    </div>
+    <nav class="menu-nav" aria-label="Menu">
+      <a href="index.html">Home</a>
+      <a href="chi-siamo.html">Chi siamo</a>
+      <a href="servizi.html">Servizi</a>
+      <a href="le-nostre-piscine.html">Le nostre piscine</a>
+      <a href="contatti.html">Contatti</a>
+    </nav>
+    <div class="menu-foot">
+      <a class="btn btn-primary" href="configuratore.html">Configura la tua piscina <span class="arr" aria-hidden="true">→</span></a>
+      <p><a href="tel:+39069596717">06 959 6717</a><br /><a href="https://wa.me/393883575189">WhatsApp 388 357 5189</a></p>
+    </div>
+  </div>
+
+  <main>
+  <!-- HERO: alta 430vh, l'immagine resta ferma (sticky) mentre scorri e le fasi si susseguono -->
+  <section class="hero-track" id="hero" aria-label="Il cantiere della tua piscina">
+    <div class="hero-sticky">
+      <div class="stage"><canvas id="scene" aria-hidden="true"></canvas></div>
+      <div class="vignette" aria-hidden="true"></div>
+
+      <header class="site-header">
+        <a class="wordmark" href="index.html" aria-label="Ra.Ma. Piscine, home">
+          <img class="wordmark-logo" src="img/rama-piscine.webp" width="52" height="52" alt="" />
+          <span>RA.MA. PISCINE</span>
+        </a>
+        <nav class="nav" aria-label="Menu principale">
+          <a href="chi-siamo.html">Chi siamo</a>
+          <a href="servizi.html">Servizi</a>
+          <a href="le-nostre-piscine.html">Le nostre piscine</a>
+          <a href="contatti.html">Contatti</a>
+        </nav>
+        <a class="header-cta" href="configuratore.html">Configura la tua piscina <span aria-hidden="true">↗</span></a>
+        <button class="menu-btn menu-btn-hero" type="button" aria-controls="menu" aria-expanded="false" data-menu-open>Menu</button>
+      </header>
+
+      <div class="hero-copy">
+        <div class="copy-top">
+          <p class="eyebrow"><span class="phase-dot"></span><span id="phaseLabel">Fase 01 — Il tuo giardino</span></p>
+          <div class="heading-stage" aria-live="polite">
+            <h1 class="heading is-active"><span class="line"><span>Costruisci la piscina</span></span><span class="line"><span>dei tuoi sogni</span></span></h1>
+            <h1 class="heading is-after" aria-hidden="true"><span class="line"><span>Lo scavo,</span></span><span class="line"><span>al centimetro</span></span></h1>
+            <h1 class="heading is-after" aria-hidden="true"><span class="line"><span>Una struttura</span></span><span class="line"><span>in acciaio</span></span></h1>
+            <h1 class="heading is-after" aria-hidden="true"><span class="line"><span>Cemento armato,</span></span><span class="line"><span>fatto per durare</span></span></h1>
+            <h1 class="heading is-after" aria-hidden="true"><span class="line"><span>Materiali di</span></span><span class="line"><span>alta qualità</span></span></h1>
+            <h1 class="heading is-after" aria-hidden="true"><span class="line"><span>Pronta in appena</span></span><span class="line"><span>10 giorni</span></span></h1>
+          </div>
+        </div>
+        <div class="copy-bottom">
+          <p class="hero-description">Progettazione, scavo, costruzione e manutenzione di piscine residenziali in tutto il Lazio.</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="configuratore.html">Configura la tua piscina <span aria-hidden="true">→</span></a>
+            <a class="btn btn-ghost" href="#consulenza">Consulenza gratuita</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-meta">
+        <span>Scorri per costruire</span>
+        <span class="progress" aria-hidden="true"><span id="progressBar"></span></span>
+        <span id="counter">01 / 06</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="after" id="after">
+
+  <!-- 1 · BENVENUTI: continua il racconto della hero -->
+  <section class="intro" id="manifesto" aria-labelledby="intro-title">
+    <div class="wave-top" aria-hidden="true">
+      <svg viewBox="0 0 1440 80" preserveAspectRatio="none"><path class="wave-a" d="M0 40 C 240 0 480 80 720 40 C 960 0 1200 80 1440 40 L1440 80 L0 80 Z" /><path class="wave-b" d="M0 50 C 240 20 480 80 720 50 C 960 20 1200 80 1440 50 L1440 80 L0 80 Z" /></svg>
+    </div>
+    <div class="wrap intro-grid">
+      <div class="intro-text">
+        <p class="tag" data-up><span class="dot"></span>Benvenuti nel nostro mondo</p>
+        <h2 id="intro-title" class="big" data-lines>Realizziamo<br />il tuo sogno<br />su misura</h2>
+        <p class="lead" data-words>Ra.Ma. Piscine è sinonimo di alta qualità e professionalità nella costruzione di piscine residenziali in tutto il Lazio.</p>
+        <p class="txt" data-up>Siamo specializzati nella progettazione, realizzazione, manutenzione e personalizzazione di una vasta gamma di spazi acquatici: piscine interrate e fuori terra, mini piscine e idromassaggi da esterno, costruite in opera.</p>
+        <div class="btn-row" data-up>
+          <a class="btn btn-primary" href="#consulenza" data-magnetic><span data-roll>Contattaci</span> <span class="arr" aria-hidden="true">→</span></a>
+          <a class="btn btn-line" href="chi-siamo.html" data-magnetic><span data-roll>Scopri chi siamo</span></a>
+        </div>
+      </div>
+      <div class="intro-pics">
+        <figure class="ip ip-1" data-reveal data-speed="-0.10"><img src="img/hd/realizzazione-piscine02.jpg" width="1800" height="1350" alt="Piscina rettangolare con bordo in travertino" loading="lazy" /></figure>
+        <figure class="ip ip-2" data-reveal data-speed="0.12"><img src="img/hd/costruzione-e-manutenzione-piscine03.jpg" width="1800" height="1350" alt="Spiaggia interna con geyser a pavimento" loading="lazy" /></figure>
+        <figure class="ip ip-3" data-reveal data-speed="-0.25"><img src="img/hd/configuratore-piscine01.jpg" width="1800" height="1350" alt="Piscina rotonda fuori terra in pietra" loading="lazy" /></figure>
+        <div class="bubble b1" aria-hidden="true"></div><div class="bubble b2" aria-hidden="true"></div><div class="bubble b3" aria-hidden="true"></div>
+      </div>
+    </div>
+
+    <div class="wrap">
+      <ul class="stats" role="list">
+        <li class="stat" data-up>
+          <p class="stat-num"><span data-count="10">10</span></p>
+          <p class="stat-label">giorni e la tua piscina è pronta</p>
+        </li>
+        <li class="stat" data-up>
+          <p class="stat-num"><span data-count="20">20</span><span class="plus">+</span></p>
+          <p class="stat-label">anni di esperienza nel settore</p>
+        </li>
+        <li class="stat" data-up>
+          <p class="stat-num"><span>360</span><span class="plus">°</span></p>
+          <p class="stat-label">servizio chiavi in mano, dallo scavo alla manutenzione</p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- FINESTRA: la foto si apre a tutto schermo mentre scorri -->
+  <section class="window" aria-labelledby="window-title">
+    <div class="window-sticky">
+      <figure class="window-frame">
+        <img src="img/hd/finestra-2560.jpg" width="2560" height="1920" alt="Piscina realizzata da Ra.Ma. Piscine con bordo in travertino" decoding="async" />
+      </figure>
+      <div class="window-copy">
+        <p class="tag tag-light"><span class="dot"></span>Chiavi in mano</p>
+        <h2 id="window-title" class="window-title"><span class="ln"><span>Pronta in appena</span></span><span class="ln"><span>10 giorni</span></span></h2>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 · SERVIZI: scena guidata dallo scroll, come la hero -->
+  <section class="services" id="servizi" aria-labelledby="services-title">
+    <div class="wrap services-head">
+      <div>
+        <p class="tag" data-up><span class="dot"></span>I nostri servizi</p>
+        <h2 id="services-title" class="big" data-lines>Specialisti nella<br />costruzione di piscine</h2>
+      </div>
+      <a class="btn btn-line" href="servizi.html" data-magnetic data-up><span data-roll>Scopri i nostri servizi</span> <span class="arr" aria-hidden="true">→</span></a>
+    </div>
+    <div class="scene" id="scene3">
+      <div class="scene-sticky">
+        <div class="wrap scene-grid">
+          <ol class="scene-texts" role="list">
+            <li class="st is-active">
+              <p class="tag"><span class="dot"></span>Fase 01 — Il tuo giardino</p>
+              <h3 class="st-title"><span class="ln"><span>Progettazione</span></span><span class="ln"><span>su misura</span></span></h3>
+              <p class="st-text">Sopralluogo nel tuo giardino e progetto insieme a te: forma, dimensioni, scala, rivestimento e filtrazione. Costruiamo in opera, senza limiti di misura.</p>
+              <ul class="chips" role="list"><li>Sopralluogo</li><li>Progetto</li><li>Forma libera</li></ul>
+            </li>
+            <li class="st">
+              <p class="tag"><span class="dot"></span>Fasi 02 – 05 — Il cantiere</p>
+              <h3 class="st-title"><span class="ln"><span>Costruzione di</span></span><span class="ln"><span>alta qualità</span></span></h3>
+              <p class="st-text">Scavo, armatura in acciaio, getto in cemento armato e posa del rivestimento in PVC armato o mosaico. Un servizio chiavi in mano, con materiali di alta qualità.</p>
+              <ul class="chips" role="list"><li>Scavo</li><li>Cemento armato</li><li>PVC o mosaico</li></ul>
+            </li>
+            <li class="st">
+              <p class="tag"><span class="dot"></span>Fase 06 — E dopo, ci siamo</p>
+              <h3 class="st-title"><span class="ln"><span>Manutenzione</span></span><span class="ln"><span>tutto l'anno</span></span></h3>
+              <p class="st-text">Acqua pulita e cristallina e accessori sempre funzionanti: equilibrio chimico, pulizia di vasca e impianti, filtri, pompe, robot e procedure invernali.</p>
+              <ul class="chips" role="list"><li>Acqua</li><li>Impianti</li><li>Svernamento</li></ul>
+            </li>
+          </ol>
+          <div class="scene-window">
+            <figure class="sw-img" style="--r:150%"><img src="img/hd/fase-01.jpg" width="1672" height="941" alt="Il giardino prima dei lavori" loading="lazy" /></figure>
+            <figure class="sw-img"><img src="img/hd/fase-04.jpg" width="1672" height="941" alt="La vasca in cemento armato" loading="lazy" /></figure>
+            <figure class="sw-img"><img src="img/hd/fase-06.jpg" width="1672" height="941" alt="La piscina finita, piena d'acqua" loading="lazy" /></figure>
+            <div class="sw-meta" aria-hidden="true"><span class="sw-bar"><span id="sceneBar"></span></span><span id="sceneCount">01 / 03</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 · CONFIGURATORE: acqua animata, carte in 3D -->
+  <section class="config" id="configura" aria-labelledby="config-title">
+    <canvas class="caustics" id="caustics" aria-hidden="true"></canvas>
+    <div class="wrap config-inner">
+      <div class="config-head">
+        <div>
+          <p class="tag tag-light" data-up><span class="dot"></span>Il configuratore</p>
+          <h2 id="config-title" class="big" data-lines>Configura<br />la tua piscina</h2>
+        </div>
+        <p class="lead" data-words>Scegli la forma, la tipologia, la scala ed il rivestimento.</p>
+      </div>
+      <ul class="cards3d" role="list">
+        <li class="card3d" data-tilt>
+          <svg viewBox="0 0 120 80" aria-hidden="true"><rect class="draw" x="10" y="14" width="100" height="52" rx="8" /></svg>
+          <h3>Forma</h3><p>Rettangolare, rotonda, a cascata o a forma libera</p>
+        </li>
+        <li class="card3d" data-tilt>
+          <svg viewBox="0 0 120 80" aria-hidden="true"><path class="draw" d="M8 56h104M20 56V28h80v28M20 40h80" /></svg>
+          <h3>Tipologia</h3><p>Interrata, fuori terra o mini piscina</p>
+        </li>
+        <li class="card3d" data-tilt>
+          <svg viewBox="0 0 120 80" aria-hidden="true"><path class="draw" d="M34 10a30 30 0 0 1 0 60M34 22a18 18 0 0 1 0 36M34 10v60" /></svg>
+          <h3>Scala</h3><p>Romana, ad angolo o spiaggia prendisole</p>
+        </li>
+        <li class="card3d" data-tilt>
+          <svg viewBox="0 0 120 80" aria-hidden="true"><path class="draw" d="M14 14h20v20H14zM40 14h20v20H40zM66 14h20v20H66zM92 14h14v20H92zM14 40h20v20H14zM40 40h20v20H40zM66 40h20v20H66zM92 40h14v20H92z" /></svg>
+          <h3>Rivestimento</h3><p>PVC armato o mosaico</p>
+        </li>
+      </ul>
+      <div class="config-cta" data-up>
+        <a class="btn btn-primary btn-big" href="configuratore.html" data-magnetic><span data-roll>Configura adesso</span> <span class="arr" aria-hidden="true">→</span></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRIMA E DOPO: trascina per trasformare il giardino in piscina -->
+  <section class="beforeafter" aria-labelledby="ba-title">
+    <div class="wrap ba-head">
+      <div>
+        <p class="tag" data-up><span class="dot"></span>Prima e dopo</p>
+        <h2 id="ba-title" class="big" data-lines>Dal prato<br />alla piscina</h2>
+      </div>
+      <p class="txt" data-up>Trascina la linea per vedere lo stesso giardino prima dei lavori e a piscina consegnata.</p>
+    </div>
+    <div class="wrap">
+      <div class="ba" id="ba" style="--pos:50%" data-reveal>
+        <img class="ba-after" src="img/hd/fase-06.jpg" width="1672" height="941" alt="Il giardino con la piscina finita" loading="lazy" />
+        <div class="ba-before"><img src="img/hd/fase-01.jpg" width="1672" height="941" alt="Il giardino prima dei lavori" loading="lazy" /></div>
+        <span class="ba-label ba-l1" aria-hidden="true">Prima</span>
+        <span class="ba-label ba-l2" aria-hidden="true">Dopo</span>
+        <span class="ba-handle" aria-hidden="true"><span>‹ ›</span></span>
+        <input type="range" min="0" max="100" value="50" aria-label="Confronta prima e dopo: sposta per vedere il giardino prima dei lavori o con la piscina" />
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 · I NOSTRI LAVORI: galleria orizzontale guidata dallo scroll -->
+  <section class="work" id="lavori" aria-labelledby="work-title">
+    <div class="work-pin">
+      <div class="work-track" id="workTrack">
+        <div class="work-intro">
+          <p class="tag" data-up><span class="dot"></span>Realizzazioni</p>
+          <h2 id="work-title" class="big" data-lines>I nostri<br />lavori</h2>
+          <p class="txt" data-up>Ogni piscina è costruita in opera, su misura per il giardino che la ospita.</p>
+          <a class="btn btn-primary" href="le-nostre-piscine.html" data-magnetic data-up><span data-roll>Vedi i nostri lavori</span> <span class="arr" aria-hidden="true">→</span></a>
+        </div>
+        <figure class="shot shot-tall"><div class="shot-img"><img src="img/hd/costruzione-piscine05.jpg" width="1800" height="1350" alt="Piscina a cascata con vasca di compenso a vista" loading="lazy" /></div><figcaption><span class="dot"></span>Piscina a cascata con vasca di compenso a vista</figcaption></figure>
+        <figure class="shot"><div class="shot-img"><img src="img/hd/costruzione-piscine04.jpg" width="1800" height="1350" alt="Piscina a sfioro in mosaico scuro" loading="lazy" /></div><figcaption><span class="dot"></span>Piscina a sfioro</figcaption></figure>
+        <figure class="shot shot-tall"><div class="shot-img"><img src="img/hd/costruzione-piscine06.jpg" width="1800" height="1350" alt="Piscina personalizzata con spiaggia e deck in legno" loading="lazy" /></div><figcaption><span class="dot"></span>Piscina personalizzata</figcaption></figure>
+        <figure class="shot"><div class="shot-img"><img src="img/hd/realizzazione-piscine04.jpg" width="1800" height="1350" alt="Piscina a goccia con lama d'acqua" loading="lazy" /></div><figcaption><span class="dot"></span>Piscina a goccia con lama d'acqua</figcaption></figure>
+        <figure class="shot shot-tall"><div class="shot-img"><img src="img/hd/configuratore-piscine02.jpg" width="1800" height="1350" alt="Piscina con doppia scala romana" loading="lazy" /></div><figcaption><span class="dot"></span>Doppia scala romana</figcaption></figure>
+        <figure class="shot"><div class="shot-img"><img src="img/hd/realizzazione-piscine05.jpg" width="1800" height="1350" alt="Idromassaggio da esterno su deck in legno" loading="lazy" /></div><figcaption><span class="dot"></span>Idromassaggio da esterno</figcaption></figure>
+        <a class="work-end" href="le-nostre-piscine.html" data-magnetic>
+          <span>Tutte le nostre piscine</span><span class="work-end-ico" aria-hidden="true">→</span>
+        </a>
+      </div>
+    </div>
+    <div class="wrap"><div class="work-progress" aria-hidden="true"><span id="workBar"></span></div></div>
+  </section>
+
+  <!-- 5 · DICONO DI NOI
+       DA AGGIORNARE: valutazione media e numero di recensioni reali del profilo Google
+       (cerca "Ra.Ma. Piscine Valmontone" su Google Maps) e il link al profilo. -->
+  <section class="reviews" id="dicono-di-noi" aria-labelledby="reviews-title">
+    <div class="wrap">
+      <div class="sec-head">
+        <div>
+          <p class="tag" data-up><span class="dot"></span>Recensioni</p>
+          <h2 id="reviews-title" class="big" data-lines>Dicono di noi</h2>
+        </div>
+        <div class="g-summary" data-up>
+          <svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 13 4 4 13 4 24s9 20 20 20 20-9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>
+          <div class="g-score">
+            <p class="g-num"><span data-rating>5,0</span><span class="g-stars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></p>
+            <p class="g-count"><span class="sr">Valutazione 5,0 su 5, </span><span data-reviews-count>5</span> recensioni su Google</p>
+          </div>
+          <a class="btn btn-primary" href="https://www.google.com/maps/search/?api=1&query=Ra.Ma.+Piscine+Valmontone" target="_blank" rel="noopener" data-magnetic><span data-roll>Leggi tutte le recensioni</span> <span class="arr" aria-hidden="true">↗</span></a>
+        </div>
+      </div>
+      <ul class="rv-grid" role="list">
+        <li class="rv rv-feature">
+          <div class="rv-top"><span class="rv-stars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><svg class="rv-g" viewBox="0 0 48 48" aria-label="Google"><use href="#g" /></svg></div>
+          <p class="rv-tag">Puntualità</p>
+          <blockquote>“Professionali e cortesi. È un'azienda che fa quello che promette. Hanno costruito la mia piscina, bellissima, rispettando i tempi di consegna. Molto attivi nel post vendita. Li consiglio certamente.”</blockquote>
+          <p class="rv-who"><span class="av" aria-hidden="true">D</span>Davide Pompili</p>
+        </li>
+        <li class="rv">
+          <div class="rv-top"><span class="rv-stars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><svg class="rv-g" viewBox="0 0 48 48" aria-label="Google"><use href="#g" /></svg></div>
+          <p class="rv-tag">Impeccabile</p>
+          <blockquote>“Molto professionali… Interventi immediati… sono venuti anche il 16 agosto…”</blockquote>
+          <p class="rv-who"><span class="av" aria-hidden="true">M</span>Michele Sabia</p>
+        </li>
+        <li class="rv">
+          <div class="rv-top"><span class="rv-stars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><svg class="rv-g" viewBox="0 0 48 48" aria-label="Google"><use href="#g" /></svg></div>
+          <p class="rv-tag">Entusiasta</p>
+          <blockquote>“Ci siamo trovati molto bene, buoni consigli e buoni prodotti, abbiamo recuperato l'acqua che stava diventando verde. Grazie di tutto”</blockquote>
+          <p class="rv-who"><span class="av" aria-hidden="true">E</span>Elettra Priori</p>
+        </li>
+        <li class="rv">
+          <div class="rv-top"><span class="rv-stars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><svg class="rv-g" viewBox="0 0 48 48" aria-label="Google"><use href="#g" /></svg></div>
+          <p class="rv-tag">Esperienza</p>
+          <blockquote>“Professionalità, Esperienza, Puntualità e Cortesia”</blockquote>
+          <p class="rv-who"><span class="av" aria-hidden="true">D</span>Dante Amerisse</p>
+        </li>
+        <li class="rv">
+          <div class="rv-top"><span class="rv-stars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><svg class="rv-g" viewBox="0 0 48 48" aria-label="Google"><use href="#g" /></svg></div>
+          <p class="rv-tag">Professionalità</p>
+          <blockquote>“Professionisti.”</blockquote>
+          <p class="rv-who"><span class="av" aria-hidden="true">F</span>Francesco Gasparri</p>
+        </li>
+      </ul>
+    </div>
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><g id="g"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 13 4 4 13 4 24s9 20 20 20 20-9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></g></defs></svg>
+  </section>
+
+  <!-- 6 · SOCIAL -->
+  <section class="social" id="social" aria-labelledby="social-title">
+    <div class="wrap">
+      <div class="sec-head">
+        <div>
+          <p class="tag" data-up><span class="dot"></span>@ramapiscine</p>
+          <h2 id="social-title" class="big" data-lines>Seguici<br />sui social</h2>
+        </div>
+        <p class="txt" data-up>Cantieri in corso, piscine appena consegnate e consigli per la manutenzione: li trovi ogni settimana sui nostri profili.</p>
+      </div>
+      <div class="social-grid">
+        <a class="sc sc-ig" href="https://www.instagram.com/ramapiscine/" target="_blank" rel="noopener" data-up>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4.2" /><circle cx="17.3" cy="6.7" r="1.1" class="fill" /></svg>
+          <span class="sc-name">Instagram</span><span class="sc-handle">@ramapiscine</span><span class="sc-go" aria-hidden="true">↗</span>
+        </a>
+        <a class="sc sc-fb" href="https://www.facebook.com/profile.php?id=100088169063861" target="_blank" rel="noopener" data-up>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 8h3V4h-3a4 4 0 0 0-4 4v3H7v4h3v6h4v-6h3l1-4h-4V8z" /></svg>
+          <span class="sc-name">Facebook</span><span class="sc-handle">Ra.Ma. Piscine</span><span class="sc-go" aria-hidden="true">↗</span>
+        </a>
+        <a class="sc sc-tt" href="https://www.tiktok.com/@ramapiscine" target="_blank" rel="noopener" data-up>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3v11.5a3.5 3.5 0 1 1-3.5-3.5M14 3c.4 2.6 2.3 4.6 5 5" /></svg>
+          <span class="sc-name">TikTok</span><span class="sc-handle">@ramapiscine</span><span class="sc-go" aria-hidden="true">↗</span>
+        </a>
+        <a class="sc sc-yt" href="https://www.youtube.com/@RamaPiscine" target="_blank" rel="noopener" data-up>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="5.5" width="19" height="13" rx="4" /><path d="M10.5 9.5v5l4.5-2.5z" class="fill" /></svg>
+          <span class="sc-name">YouTube</span><span class="sc-handle">@RamaPiscine</span><span class="sc-go" aria-hidden="true">↗</span>
+        </a>
+      </div>
+      <a class="feed" href="https://www.instagram.com/ramapiscine/" target="_blank" rel="noopener" aria-label="Guarda le foto su Instagram">
+        <span class="feed-img" data-reveal><img src="img/hd/costruzione-e-manutenzione-piscine04.jpg" width="1800" height="1350" alt="" loading="lazy" /></span>
+        <span class="feed-img" data-reveal><img src="img/hd/fase-03.jpg" width="1672" height="941" alt="" loading="lazy" /></span>
+        <span class="feed-img" data-reveal><img src="img/hd/configuratore-piscine01.jpg" width="1800" height="1350" alt="" loading="lazy" /></span>
+        <span class="feed-img" data-reveal><img src="img/hd/costruzione-piscine05.jpg" width="1800" height="1350" alt="" loading="lazy" /></span>
+        <span class="feed-img" data-reveal><img src="img/hd/fase-06.jpg" width="1672" height="941" alt="" loading="lazy" /></span>
+        <span class="feed-img" data-reveal><img src="img/hd/realizzazione-piscine02.jpg" width="1800" height="1350" alt="" loading="lazy" /></span>
+      </a>
+    </div>
+  </section>
+
+  <!-- 7 · RIVENDITORI E PARTNER -->
+  <section class="brands" id="partner" aria-labelledby="brands-title">
+    <div class="wrap">
+      <p class="tag" data-up><span class="dot"></span>Marchi e partner</p>
+      <h2 id="brands-title" class="mid" data-lines>Siamo rivenditori ufficiali</h2>
+    </div>
+    <div class="logo-belt" data-belt>
+      <ul class="logo-row" role="list">
+        <li><img src="img/loghi/logo_laghetto.png.webp" width="228" height="73" alt="Piscine Laghetto" loading="lazy" /></li>
+        <li><img src="img/loghi/maripool-piscine.png" width="425" height="119" alt="Ma.Ri.Pool" loading="lazy" /></li>
+        <li><img src="img/loghi/astrapool.png.webp" width="228" height="73" alt="AstralPool" loading="lazy" /></li>
+        <li><img src="img/loghi/scp-piscine.jpg" width="160" height="65" alt="SCP" loading="lazy" /></li>
+        <li><img src="img/loghi/hayward.jpeg" width="300" height="143" alt="Hayward" loading="lazy" /></li>
+        <li><img src="img/loghi/lapi-chimica-innovativa.jpg" width="151" height="80" alt="Lapi chimica innovativa" loading="lazy" /></li>
+        <li><img src="img/loghi/pentair.png" width="446" height="113" alt="Pentair" loading="lazy" /></li>
+        <li><img src="img/loghi/polimpianti.jpeg" width="431" height="85" alt="Polimpianti" loading="lazy" /></li>
+      </ul>
+    </div>
+    <div class="wrap partners">
+      <h2 class="mid" data-lines>Official partner</h2>
+      <ul class="partner-row" role="list">
+        <li data-up><img src="img/loghi/logo-basket.png" width="300" height="298" alt="CBF, squadra di basket sponsorizzata da Ra.Ma. Piscine" loading="lazy" /></li>
+        <li data-up><a href="https://roma.corriere.it/notizie/cronaca/23_maggio_24/la-setta-dei-romani-estinti-duemila-anni-di-storia-a-teatro-b560f4e9-55a4-4778-95c4-08dd2aba4xlk.shtml" target="_blank" rel="noopener"><img src="img/loghi/copagnia-teatrale-800x450.png" width="800" height="450" alt="Compagnia teatrale: La setta dei romani estinti (apre l'articolo)" loading="lazy" /></a></li>
+        <li data-up><img src="img/loghi/santander-societa-finanziaria-768x348.jpg" width="768" height="348" alt="Santander Consumer Bank" loading="lazy" /></li>
+        <li data-up><img src="img/loghi/fiditalia-societa-finanziaria-768x177.jpg" width="768" height="177" alt="Fiditalia" loading="lazy" /></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 8 · CONSULENZA GRATUITA -->
+  <section class="consult" id="consulenza" aria-labelledby="consult-title">
+    <div class="wrap consult-grid">
+      <div class="consult-info">
+        <p class="tag" data-up><span class="dot"></span>Consulenza gratuita</p>
+        <h2 id="consult-title" class="big" data-lines>Richiedi una<br />consulenza</h2>
+        <p class="lead" data-words>Compila il form, ti ricontatteremo prima di quanto pensi!</p>
+        <div class="contact-cards">
+          <a class="cc" href="tel:+39069596717" data-up>
+            <span class="cc-label">Showroom e amministrazione</span>
+            <span class="cc-main">06 959 6717</span>
+            <span class="cc-sub">Via Casilina, Km 46.400 · Valmontone (RM)</span>
+            <span class="cc-go" aria-hidden="true">→</span>
+          </a>
+          <a class="cc" href="https://wa.me/393883575189" target="_blank" rel="noopener" data-up>
+            <span class="cc-label">Servizio clienti e WhatsApp</span>
+            <span class="cc-main">388 357 5189</span>
+            <span class="cc-sub">Dal lunedì al sabato, 8.00 – 18.00</span>
+            <span class="cc-go" aria-hidden="true">→</span>
+          </a>
+          <a class="cc" href="mailto:info@ramapiscine.it" data-up>
+            <span class="cc-label">Email</span>
+            <span class="cc-main">info@ramapiscine.it</span>
+            <span class="cc-sub">Servizio clienti: servizioclienti@ramapiscine.com</span>
+            <span class="cc-go" aria-hidden="true">→</span>
+          </a>
+        </div>
+      </div>
+
+      <form class="form" id="consultForm" novalidate data-up>
+        <div class="form-row">
+          <div class="fl"><input id="f-nome" name="nome" type="text" autocomplete="given-name" placeholder=" " /><label for="f-nome">Nome</label></div>
+          <div class="fl"><input id="f-cognome" name="cognome" type="text" autocomplete="family-name" placeholder=" " /><label for="f-cognome">Cognome</label></div>
+        </div>
+        <div class="form-row">
+          <div class="fl">
+            <input id="f-tel" name="telefono" type="tel" autocomplete="tel" inputmode="tel" required aria-describedby="err-tel" placeholder=" " /><label for="f-tel">Telefono *</label>
+            <p class="err" id="err-tel" hidden>Inserisci un numero di telefono per essere ricontattato.</p>
+          </div>
+          <div class="fl"><input id="f-email" name="email" type="email" autocomplete="email" placeholder=" " /><label for="f-email">Email</label></div>
+        </div>
+        <div class="fl"><textarea id="f-msg" name="messaggio" rows="4" placeholder=" "></textarea><label for="f-msg">Raccontaci il tuo progetto</label></div>
+        <label class="check">
+          <input type="checkbox" name="privacy" required aria-describedby="err-privacy" />
+          <span class="check-box" aria-hidden="true"></span>
+          <span>Autorizzo al trattamento dei miei dati personali secondo la <a href="https://www.iubenda.com/privacy-policy/15649186" target="_blank" rel="noopener">privacy policy</a>.</span>
+        </label>
+        <p class="err" id="err-privacy" hidden>Serve il consenso per poterti ricontattare.</p>
+        <button class="btn btn-primary btn-big" type="submit" data-magnetic><span data-roll>Inviaci la tua richiesta</span> <span class="arr" aria-hidden="true">→</span></button>
+        <p class="form-done" id="formDone" hidden role="status">Grazie! Si è aperta la tua app di posta con la richiesta già scritta: premi invia e ti ricontattiamo.</p>
+      </form>
+    </div>
+  </section>
+  </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="foot" id="foot">
+    <div class="wave-top wave-foot" aria-hidden="true">
+      <svg viewBox="0 0 1440 80" preserveAspectRatio="none"><path class="wave-a" d="M0 40 C 240 0 480 80 720 40 C 960 0 1200 80 1440 40 L1440 80 L0 80 Z" /><path class="wave-b" d="M0 50 C 240 20 480 80 720 50 C 960 20 1200 80 1440 50 L1440 80 L0 80 Z" /></svg>
+    </div>
+    <div class="wrap">
+      <div class="foot-cta">
+        <p class="foot-ask" data-lines>Pronto a tuffarti?</p>
+        <a class="btn btn-primary btn-big" href="configuratore.html" data-magnetic><span data-roll>Configura la tua piscina</span> <span class="arr" aria-hidden="true">→</span></a>
+      </div>
+      <div class="foot-cols">
+        <div>
+          <h2>Showroom e amministrazione</h2>
+          <p>Via Casilina, Km 46.400<br />Valmontone (RM)</p>
+          <p><a href="tel:+39069596717">+39 06 959 6717</a><br /><a href="mailto:info@ramapiscine.it">info@ramapiscine.it</a></p>
+        </div>
+        <div>
+          <h2>Servizio clienti</h2>
+          <p>Lunedì – sabato, 8.00 – 18.00</p>
+          <p><a href="tel:+393883575189">+39 388 357 5189</a><br /><a href="mailto:servizioclienti@ramapiscine.com">servizioclienti@ramapiscine.com</a></p>
+        </div>
+        <nav aria-label="Pagine">
+          <h2>Pagine</h2>
+          <p><a href="chi-siamo.html">Chi siamo</a><br /><a href="servizi.html">Servizi</a><br /><a href="le-nostre-piscine.html">Le nostre piscine</a><br /><a href="contatti.html">Contatti</a></p>
+        </nav>
+        <div>
+          <h2>Seguici</h2>
+          <p><a href="https://www.instagram.com/ramapiscine/" target="_blank" rel="noopener">Instagram</a><br /><a href="https://www.facebook.com/profile.php?id=100088169063861" target="_blank" rel="noopener">Facebook</a><br /><a href="https://www.tiktok.com/@ramapiscine" target="_blank" rel="noopener">TikTok</a><br /><a href="https://www.youtube.com/@RamaPiscine" target="_blank" rel="noopener">YouTube</a></p>
+        </div>
+      </div>
+      <p class="foot-word" aria-hidden="true">RA.MA. PISCINE</p>
+      <p class="foot-legal">© 2026 Ra.Ma. Piscine · <a href="https://www.iubenda.com/privacy-policy/15649186" target="_blank" rel="noopener">Privacy policy</a> · <a href="https://www.iubenda.com/privacy-policy/15649186/cookie-policy" target="_blank" rel="noopener">Cookie policy</a></p>
+    </div>
+  </footer>
+
+  <script type="module" src="main.js?v=8"></script>
+  <script type="module" src="home.js?v=8"></script>
+</body>
+</html>
