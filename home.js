@@ -99,8 +99,9 @@ if (motion && finePointer) {
     el.addEventListener('pointerleave', () => { xTo(0); yTo(0); });
   });
   // carte 3D che seguono il mouse
-  $$('[data-tilt], .rv, .stat, .sc').forEach((card) => {
-    const k = card.matches('[data-tilt]') ? 16 : 6;
+  $$('[data-tilt]').forEach((card) => {
+    const k = card.matches('[data-tilt]') ? 7 : 0;
+    if (!k) return;
     const rx = gsap.quickTo(card, 'rotationX', { duration: .6, ease: 'power3.out' });
     const ry = gsap.quickTo(card, 'rotationY', { duration: .6, ease: 'power3.out' });
     gsap.set(card, { transformPerspective: 900 });
@@ -123,17 +124,17 @@ if (motion) {
 
   // titoli: ogni riga sale da una maschera (lo stesso effetto dei titoli della hero)
   $$('[data-lines]').forEach((el) => {
-    gsap.from($$('.ln > span', el), { yPercent: 125, duration: 1.3, ease: 'expo.out', stagger: .1, scrollTrigger: once(el, 'top 88%') });
+    gsap.from($$('.ln > span', el), { yPercent: 125, duration: 1.6, ease: 'expo.out', stagger: .12, scrollTrigger: once(el, 'top 88%') });
   });
   // frasi: le parole arrivano una dopo l'altra
   $$('[data-words]').forEach((el) => {
-    gsap.from($$('.w', el), { y: 22, opacity: 0, rotate: 3, duration: .9, ease: 'expo.out', stagger: .03, scrollTrigger: once(el) });
+    gsap.from($$('.w', el), { y: 14, opacity: 0, duration: 1.4, ease: 'power3.out', stagger: .035, scrollTrigger: once(el) });
   });
   // elementi che salgono dal basso, a gruppi
-  gsap.set('[data-up]', { y: 46, opacity: 0 });
+  gsap.set('[data-up]', { y: 28, opacity: 0 });
   ScrollTrigger.batch('[data-up]', {
     start: 'top 90%',
-    onEnter: (els) => gsap.to(els, { y: 0, opacity: 1, duration: 1.1, ease: 'expo.out', stagger: .1, overwrite: true }),
+    onEnter: (els) => gsap.to(els, { y: 0, opacity: 1, duration: 1.5, ease: 'power3.out', stagger: .12, overwrite: true }),
   });
   // foto che si aprono come una tendina, con zoom
   $$('[data-reveal]').forEach((el, i) => {
@@ -165,7 +166,7 @@ if (motion) {
   // configuratore: le quattro carte arrivano a ventaglio, come una mano di carte, e si aprono in fila
   gsap.fromTo('.card3d', {
     x: (i, el) => { const g = el.parentElement.getBoundingClientRect(); const r = el.getBoundingClientRect(); return g.left + g.width / 2 - (r.left + r.width / 2); },
-    y: (i) => 120 + Math.abs(i - 1.5) * 40, rotation: (i) => (i - 1.5) * 14, rotationY: (i) => (i - 1.5) * -20, transformPerspective: 1200, transformOrigin: '50% 120%',
+    y: (i) => 80 + Math.abs(i - 1.5) * 24, rotation: (i) => (i - 1.5) * 8, rotationY: (i) => (i - 1.5) * -10, transformPerspective: 1200, transformOrigin: '50% 120%',
   }, { x: 0, y: 0, rotation: 0, rotationY: 0, ease: 'power2.out', scrollTrigger: { trigger: '.cards3d', start: 'top 95%', end: 'top 40%', scrub: 1 } });
 
   $$('.card3d .draw').forEach((p, i) => {
@@ -186,7 +187,7 @@ if (motion) {
     $$('.shot').forEach((s) => {
       const img = $('img', s);
       gsap.fromTo(img, { xPercent: -10 }, { xPercent: 0, ease: 'none', scrollTrigger: { trigger: s, containerAnimation: tween, start: 'left right', end: 'right left', scrub: true } });
-      gsap.fromTo(s, { rotationY: -34, z: -140, y: 40, transformPerspective: 1400 }, { rotationY: 28, z: -40, y: -10, ease: 'none', scrollTrigger: { trigger: s, containerAnimation: tween, start: 'left right', end: 'right left', scrub: true } });
+      gsap.fromTo(s, { rotationY: -16, z: -80, y: 20, transformPerspective: 1600 }, { rotationY: 12, z: -20, y: -6, ease: 'none', scrollTrigger: { trigger: s, containerAnimation: tween, start: 'left right', end: 'right left', scrub: true } });
     });
     gsap.from('.work-end', { scale: .4, rotate: -90, ease: 'none', scrollTrigger: { trigger: '.work-end', containerAnimation: tween, start: 'left right', end: 'left 70%', scrub: true } });
   });
@@ -198,13 +199,13 @@ if (motion) {
   });
 
   // recensioni: il riepilogo Google si accende, le carte entrano a ventaglio e le stelle si illuminano
-  gsap.from('.g-stars i', { scale: 0, rotate: -90, stagger: .08, duration: .7, ease: 'back.out(3)', scrollTrigger: once('.g-summary', 'top 90%') });
+  gsap.from('.g-stars i', { opacity: 0, stagger: .12, duration: 1, ease: 'power2.out', scrollTrigger: once('.g-summary', 'top 90%') });
   const rvs = $$('.rv');
-  gsap.from(rvs, { y: 90, opacity: 0, rotate: (i) => (i % 2 ? 3 : -3), duration: 1.2, ease: 'expo.out', stagger: .1, scrollTrigger: once('.rv-grid', 'top 85%') });
-  gsap.from($$('.rv-stars i'), { scale: 0, duration: .5, ease: 'back.out(3)', stagger: .02, delay: .5, scrollTrigger: once('.rv-grid', 'top 85%') });
+  gsap.from(rvs, { y: 40, opacity: 0, duration: 1.6, ease: 'power3.out', stagger: .14, scrollTrigger: once('.rv-grid', 'top 85%') });
+  gsap.from($$('.rv-stars i'), { opacity: 0, duration: .8, ease: 'power2.out', stagger: .03, delay: .5, scrollTrigger: once('.rv-grid', 'top 85%') });
 
   // social: icone che girano, griglia di foto a onda
-  gsap.from('.sc svg', { rotate: -180, scale: 0, duration: 1.2, ease: 'expo.out', stagger: .1, scrollTrigger: once('.social-grid', 'top 88%') });
+  gsap.from('.sc', { x: -30, opacity: 0, duration: 1.4, ease: 'power3.out', stagger: .12, scrollTrigger: once('.social-grid', 'top 88%') });
 
   // partner: le carte salgono una dopo l'altra (già con data-up)
 
@@ -212,7 +213,7 @@ if (motion) {
   const word = $('.foot-word');
   if (word) {
     word.innerHTML = [...word.textContent].map((c) => (c === ' ' ? ' ' : `<span class="ch">${c}</span>`)).join('');
-    gsap.from('.foot-word .ch', { yPercent: 110, rotate: 8, stagger: .045, ease: 'expo.out', duration: 1.3, scrollTrigger: once(word, 'top 98%') });
+    gsap.from('.foot-word .ch', { yPercent: 110, stagger: .05, ease: 'expo.out', duration: 1.8, scrollTrigger: once(word, 'top 98%') });
   }
 
   // ricalcola le posizioni quando le immagini sono caricate
@@ -280,7 +281,7 @@ if (form) {
     const badTel = tel.value.replace(/\D/g, '').length < 6;
     const badPrivacy = !privacy.checked;
     show(tel, errTel, badTel); show(privacy, errPrivacy, badPrivacy);
-    if (badTel) { tel.focus(); if (motion) gsap.fromTo(tel, { x: -8 }, { x: 0, duration: .5, ease: 'elastic.out(1, .3)' }); return; }
+    if (badTel) { tel.focus(); return; }
     if (badPrivacy) { privacy.focus(); return; }
     const f = Object.fromEntries(new FormData(form));
     const lines = [`Nome: ${`${f.nome || ''} ${f.cognome || ''}`.trim()}`, `Telefono: ${f.telefono}`];

@@ -535,6 +535,101 @@ a:hover [data-roll] .r2, button:hover [data-roll] .r2, a:focus-visible [data-rol
 .wave-foot .wave-a { fill: rgba(15, 111, 147, .4); }
 
 /* =========================================================
+   ELEGANZA — impaginazione editoriale, filetti sottili,
+   un solo colore forte (il giallo delle azioni principali).
+   ========================================================= */
+:root { --r-xl: clamp(14px, 1.4vw, 20px); --r-l: 12px; --hair: 1px solid rgba(13, 42, 53, .12); }
+
+/* titoli più composti */
+.big { font-size: clamp(40px, 5vw, 86px); letter-spacing: .03em; line-height: 1.02; }
+.lead { font-size: clamp(18px, 1.4vw, 22px); }
+.tag { font-size: 11px; letter-spacing: .34em; }
+.dot { width: 6px; height: 6px; }
+
+/* bottoni secondari: link sottile con linea che si disegna */
+.after .btn-line, .foot .btn-line {
+  background: none !important; box-shadow: none !important; border-radius: 0; padding: 14px 0 !important;
+  color: var(--navy); overflow: visible;
+}
+.btn-line::after { inset: auto 0 6px 0 !important; height: 1px; background: currentColor !important; transform: scaleX(.35) !important; transform-origin: left !important; border-radius: 0 !important; z-index: 0 !important; }
+.btn-line:hover::after, .btn-line:focus-visible::after { transform: scaleX(1) !important; }
+.btn-line:hover, .btn-line:focus-visible { color: var(--azz-d) !important; }
+
+/* bottoni principali: nessuna ombra */
+.after .btn, .foot .btn { box-shadow: none; }
+
+/* foto: angoli sobri, ombre quasi impercettibili */
+.ip, .scene-window, .ba, .shot-img { box-shadow: 0 40px 80px -70px rgba(13, 42, 53, .6); }
+.ip-3 { border-width: 5px; }
+
+/* chips → parole separate da punti, senza bordi */
+.chips { gap: 0; }
+.chips li { box-shadow: none !important; padding: 0; background: none !important; font-size: 12px; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); }
+.chips li + li::before { content: "·"; margin: 0 12px; color: var(--gold); }
+.chips li:hover { transform: none; }
+
+/* configuratore: carte più sottili */
+.card3d { border-radius: var(--r-l); min-height: 240px; }
+.card3d h3 { font-size: clamp(24px, 2vw, 34px); }
+
+/* ---------- Recensioni: citazioni editoriali ---------- */
+.g-summary { background: none; box-shadow: none; border-radius: 0; padding: 0; gap: 18px 28px; }
+.g-logo { width: 34px; height: 34px; }
+.g-num { font-size: 34px; }
+.g-stars i, .rv-stars i { width: 13px; height: 13px; }
+.rv-grid { gap: 0; border-top: var(--hair); }
+.rv { background: none !important; box-shadow: none !important; border-radius: 0; padding: clamp(28px, 3vw, 44px) clamp(20px, 2.4vw, 36px); border-bottom: var(--hair); }
+.rv + .rv { border-left: var(--hair); }
+.rv:hover { transform: none; background: #fff !important; }
+.rv-feature { border-left: 0; }
+.rv-feature::before { display: none; }
+.rv-tag, .av, .rv-g { display: none; }
+.rv blockquote { font-size: 17px; font-weight: 300; line-height: 1.7; color: var(--navy); }
+.rv-feature blockquote { font-size: clamp(22px, 2vw, 30px) !important; font-weight: 300; line-height: 1.45 !important; }
+.rv-who { font-size: 11px; font-weight: 600; letter-spacing: .26em; text-transform: uppercase; color: var(--muted); }
+.rv-who::before { content: ""; width: 24px; height: 1px; background: var(--gold); }
+
+/* ---------- Social: lista editoriale ---------- */
+.social-grid { display: block; border-top: var(--hair); }
+.sc {
+  display: grid; grid-template-columns: 44px minmax(0, 1fr) auto 40px; grid-template-rows: auto; align-items: center; column-gap: clamp(16px, 2.4vw, 40px);
+  padding: clamp(22px, 2.4vw, 34px) 4px; background: none !important; box-shadow: none !important; border-radius: 0; border-bottom: var(--hair);
+  transition: color .4s ease, padding .6s var(--ease);
+}
+.sc::before { background: var(--sky-50); }
+.sc:hover, .sc:focus-visible { color: var(--navy); transform: none; padding-left: 20px; }
+.sc svg { grid-row: auto; width: 44px; height: 44px; padding: 10px; border-radius: 50%; background: none; box-shadow: inset 0 0 0 1px rgba(13, 42, 53, .18) !important; }
+.sc:hover svg { transform: none; }
+.sc-name { font-size: clamp(32px, 4vw, 64px); letter-spacing: .03em; transition: color .4s ease; }
+.sc:hover .sc-name { color: var(--azz-d); }
+.sc-handle { font-size: 12px; letter-spacing: .24em; text-transform: uppercase; opacity: 1; color: var(--muted); }
+.sc-go { position: static; justify-self: end; font-size: 22px; color: var(--gold); }
+.feed { margin-top: clamp(40px, 4vw, 64px); gap: 6px; }
+.feed-img { border-radius: 0; }
+
+/* ---------- Partner: loghi in grigio, a colori al passaggio ---------- */
+.logo-row li, .partner-row li { background: none !important; box-shadow: none !important; }
+.logo-row img, .partner-row img { filter: grayscale(1); opacity: .6; transition: filter .5s ease, opacity .5s ease; }
+.logo-row li:hover img, .partner-row li:hover img { filter: none; opacity: 1; }
+.partner-row { gap: 0; border-top: var(--hair); border-bottom: var(--hair); }
+.partner-row li { border-radius: 0; }
+.partner-row li + li { border-left: var(--hair); }
+.partner-row li:hover { transform: none; box-shadow: none; }
+
+/* ---------- Contatti: righe sottili invece di card ---------- */
+.contact-cards { gap: 0; border-top: var(--hair); }
+.cc { background: none !important; box-shadow: none !important; border-radius: 0; border-bottom: var(--hair); padding: 22px 56px 22px 0; transition: padding .6s var(--ease); }
+.cc:hover { color: var(--navy); transform: none; padding-left: 14px; }
+.cc:hover .cc-label { color: var(--gold); }
+.cc:hover .cc-sub { color: var(--muted); }
+.cc-go { right: 0; background: none; }
+.cc:hover .cc-go { color: var(--azz-d); box-shadow: inset 0 0 0 1px var(--azz); }
+.form { border-radius: var(--r-xl); }
+
+/* footer */
+.foot-cta { padding-bottom: clamp(40px, 5vw, 72px); border-bottom: 1px solid rgba(255,255,255,.18); }
+
+/* =========================================================
    RESPONSIVE
    ========================================================= */
 @media (max-width: 1180px) {
@@ -627,3 +722,25 @@ html, body { overflow-x: clip; }
   .window-title { font-size: clamp(40px, 8vw, 72px); }
   .window-copy { margin-bottom: 8vh; }
 }
+
+/* eleganza: adattamenti per tablet e telefono */
+@media (max-width: 1180px) {
+  .rv + .rv { border-left: 0; }
+  .rv:nth-child(even) { border-left: var(--hair); }
+  .rv-feature { grid-column: 1 / -1; }
+}
+@media (max-width: 860px) {
+  .partner-row li:nth-child(3) { border-left: 0; }
+  .partner-row li:nth-child(n+3) { border-top: var(--hair); }
+}
+@media (max-width: 600px) {
+  .rv:nth-child(even) { border-left: 0; }
+  .rv { padding-inline: 0; }
+  .sc { grid-template-columns: 40px minmax(0, 1fr) 28px; }
+  .sc-handle { grid-column: 2; grid-row: 2; }
+  .sc-go { grid-row: 1 / 3; grid-column: 3; }
+  .sc svg { grid-row: 1 / 3; }
+}
+
+/* parole sotto i servizi: in riga, separate da un punto oro */
+.chips { display: flex; flex-wrap: wrap; align-items: center; row-gap: 6px; }
