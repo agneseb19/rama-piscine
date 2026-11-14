@@ -19,6 +19,11 @@ const SETTINGS = {
   phoneWidth: 1.04,      // telefono in verticale: larghezza dell'immagine rispetto allo schermo (1 = intera)
   phoneCenter: 0.47,     // telefono in verticale: altezza della fascia (0.5 = centro, più basso = più in basso)
   videoSharpen: 0.7,     // nitidezza del video (0 = nessuna, 1.2 = molta)
+  // Telefono in verticale: se esistono queste versioni verticali (1080x1920) vengono usate al posto di quelle orizzontali.
+  // Se mancano, il sito usa le foto orizzontali con la fascia panoramica.
+  mobileDir: 'fasi-mobile/',              // fasi-mobile/01.jpg ... 06.jpg
+  mobileVideo: 'video/video-1-mobile.mp4', // il passaggio prato → scavo in verticale
+  mobileFocus: { x: 0.5, y: 0.62 },       // dove si trova la piscina nelle foto verticali (0-1 dall'alto a sinistra)
 };
 
 // Le fasi: immagine + testi (stesso ordine dei titoli nell'HTML)
@@ -53,6 +58,7 @@ const uniforms = {
   uFocus: { value: new THREE.Vector2(FOCUS.x, 1 - FOCUS.y) },
   uSeed: { value: 0 },
   uBand: { value: new THREE.Vector2(SETTINGS.phoneWidth, SETTINGS.phoneCenter) }, // telefono: fascia panoramica
+  uBandOn: { value: 1 },                 // 0 quando si usano le foto verticali
   uFade: { value: 0 },
   uSharpen: { value: 0 },                // nitidezza extra, solo per il video
   uVidTexel: { value: new THREE.Vector2(1 / 1916, 1 / 1080) }, // solo nel tratto video: dissolvenza morbida verso la foto vicina
@@ -62,7 +68,7 @@ const material = new THREE.ShaderMaterial({
   vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0., 1.); }',
   fragmentShader: /* glsl */ `
     uniform sampler2D tA, tB;
-    uniform float uMix, uZoom, uSeed, uFade, uSharpen;
+    uniform float uMix, uZoom, uSeed, uFade, uSharpen, uBandOn;
     uniform vec2 uVidTexel;
     uniform vec2 uRes, uImg, uOffset, uFocus, uBand;
     varying vec2 vUv;
@@ -105,7 +111,7 @@ const material = new THREE.ShaderMaterial({
 
       // Schermi verticali (telefono): l'immagine si vede intera in larghezza, come una fascia
       // panoramica, così la piscina non viene tagliata; sopra e sotto la stessa scena sfocata.
-      float fit = smoothstep(1.0, .8, sr) * step(sr, ir);
+      float fit = smoothstep(1.0, .8, sr) * step(sr, ir) * uBandOn;
       float imgW = mix(max(ir / sr, 1.), uBand.x, fit); // larghezza dell'immagine, in larghezze di schermo
       float imgH = imgW * sr / ir;                    // altezza dell'immagine, in altezze di schermo
       float cy = mix(.5, uBand.y, fit);               // centro della fascia (0 = basso, 1 = alto)
@@ -129,12 +135,24 @@ scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material));
 
 /* ---------- Caricamento foto ---------- */
 const loader = document.getElementById('loader');
+const VIDEO_URL = 'video/video-1.mp4';
 const textures = [];
 const texLoader = new THREE.TextureLoader();
-Promise.all(PHASES.map((p) => new Promise((res, rej) => texLoader.load(p.img, res, undefined, rej))))
+const IS_PORTRAIT = window.innerWidth / window.innerHeight < 0.8;
+let usingMobileSet = false;
+const loadSet = (paths) => Promise.all(paths.map((src) => new Promise((res, rej) => texLoader.load(src, res, undefined, rej))));
+const desktopPaths = PHASES.map((ph) => ph.img);
+const mobilePaths = PHASES.map((ph, i) => `${SETTINGS.mobileDir}0${i + 1}.jpg`);
+(IS_PORTRAIT ? loadSet(mobilePaths).then((l) => { usingMobileSet = true; return l; }).catch(() => loadSet(desktopPaths)) : loadSet(desktopPaths))
   .then((list) => {
     list.forEach((t) => { t.colorSpace = THREE.SRGBColorSpace; t.minFilter = THREE.LinearMipmapLinearFilter; t.generateMipmaps = true; textures.push(t); });
     uniforms.uImg.value.set(list[0].image.width, list[0].image.height);
+    if (usingMobileSet) {
+      // foto verticali: riempiono lo schermo da sole, niente fascia panoramica
+      uniforms.uBandOn.value = 0;
+      uniforms.uFocus.value.set(SETTINGS.mobileFocus.x, 1 - SETTINGS.mobileFocus.y);
+    }
+    startVideo(usingMobileSet ? SETTINGS.mobileVideo : VIDEO_URL);
     loader.classList.add('is-hidden');
   })
   .catch(() => { loader.querySelector('.loader-label').textContent = 'Foto non trovate nella cartella "fasi"'; });
@@ -145,7 +163,6 @@ Promise.all(PHASES.map((p) => new Promise((res, rej) => texLoader.load(p.img, re
    resta la transizione originale. */
 const VIDEO_SEGMENT = 0; // il tratto tra fase 01 e fase 02
 const video = document.createElement('video');
-const VIDEO_URL = 'video/video-1.mp4';
 video.muted = true; video.playsInline = true; video.preload = 'auto';
 video.setAttribute('muted', ''); video.setAttribute('playsinline', '');
 // nel documento ma invisibile: alcuni browser non decodificano i video fuori dalla pagina
@@ -224,10 +241,13 @@ function seekVideo(f) {
 }
 // Il video viene scaricato intero e servito da memoria (blob): così si può riavvolgere
 // con lo scroll anche se il server non supporta le richieste "a pezzi".
-fetch(VIDEO_URL)
-  .then((r) => { if (!r.ok) throw new Error(r.status); return r.blob(); })
-  .then((b) => { video.src = URL.createObjectURL(b); video.load(); })
-  .catch(() => { video.src = VIDEO_URL; video.load(); });
+function startVideo(url) {
+  fetch(url)
+    .then((r) => { if (!r.ok) throw new Error(r.status); return r.blob(); })
+    .then((b) => { video.src = URL.createObjectURL(b); video.load(); })
+    // se il video verticale non c'è, sul telefono resta la transizione a macchie tra le foto
+    .catch(() => { if (url === VIDEO_URL) { video.src = VIDEO_URL; video.load(); } });
+}
 window.__heroVideo = video; window.__heroFrame = frameCanvas; // utili per il debug dalla console
 
 /* ---------- Interfaccia ---------- */
