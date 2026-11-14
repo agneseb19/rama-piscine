@@ -19,11 +19,11 @@ const SETTINGS = {
   phoneWidth: 1.04,      // telefono in verticale: larghezza dell'immagine rispetto allo schermo (1 = intera)
   phoneCenter: 0.47,     // telefono in verticale: altezza della fascia (0.5 = centro, più basso = più in basso)
   videoSharpen: 0.7,     // nitidezza del video (0 = nessuna, 1.2 = molta)
-  // Telefono in verticale: se esistono queste versioni verticali (1080x1920) vengono usate al posto di quelle orizzontali.
-  // Se mancano, il sito usa le foto orizzontali con la fascia panoramica.
+  // Telefono in verticale: se ci sono tutte e 6 le fasi verticali vengono usate al posto di quelle orizzontali
+  // (senza video: prato → scavo usa la stessa transizione delle altre fasi). Se ne manca anche una,
+  // il sito usa le foto orizzontali con la fascia panoramica.
   mobileDir: 'fasi-mobile/',              // fasi-mobile/01.jpg ... 06.jpg
-  mobileVideo: 'video/video-1-mobile.mp4', // il passaggio prato → scavo in verticale
-  mobileFocus: { x: 0.5, y: 0.62 },       // dove si trova la piscina nelle foto verticali (0-1 dall'alto a sinistra)
+  mobileFocus: { x: 0.5, y: 0.67 },       // dove si trova la piscina nelle foto verticali (0-1 dall'alto a sinistra)
 };
 
 // Le fasi: immagine + testi (stesso ordine dei titoli nell'HTML)
@@ -152,7 +152,7 @@ const mobilePaths = PHASES.map((ph, i) => `${SETTINGS.mobileDir}0${i + 1}.jpg`);
       uniforms.uBandOn.value = 0;
       uniforms.uFocus.value.set(SETTINGS.mobileFocus.x, 1 - SETTINGS.mobileFocus.y);
     }
-    startVideo(usingMobileSet ? SETTINGS.mobileVideo : VIDEO_URL);
+    if (!usingMobileSet) startVideo(VIDEO_URL);
     loader.classList.add('is-hidden');
   })
   .catch(() => { loader.querySelector('.loader-label').textContent = 'Foto non trovate nella cartella "fasi"'; });
