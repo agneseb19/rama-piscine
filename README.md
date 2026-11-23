@@ -21,6 +21,7 @@ poi apri <http://localhost:8000>.
 | `home.css`, `home.js` | Tutto ciò che viene dopo la hero (GSAP + ScrollTrigger) |
 | `fasi/` | Le 6 immagini delle fasi della hero |
 | `video/video-1.mp4` | Tutto il cantiere, dal prato alla piscina piena (Kling 4.0, 20 s, 1080p), guidato dallo scroll. I secondi di ogni fase sono in `VIDEO_KEYS` in `main.js` |
+| `video/video-1-mobile.mp4` | Lo stesso video in verticale per il telefono (Kling 4.0, 20 s, 720×1278). I secondi di ogni fase sono in `VIDEO_KEYS_MOBILE` in `main.js` |
 | `img/` | Foto originali dei lavori e loghi di marchi e partner |
 | `img/hd/` | Foto migliorate e raddrizzate usate nella pagina |
 
@@ -32,6 +33,6 @@ poi apri <http://localhost:8000>.
 
 ## Hero sul telefono: versioni verticali
 
-Sul telefono in verticale la hero usa le 6 fasi verticali in `fasi-mobile/01.jpg` … `06.jpg` (stessa scena e stessa inquadratura fissa per tutte). Sul telefono non c'è video: il passaggio prato → scavo usa la stessa transizione delle altre fasi.
+Sul telefono in verticale la hero usa le 6 fasi verticali in `fasi-mobile/01.jpg` … `06.jpg` (stessa scena e stessa inquadratura fissa per tutte). Con le foto verticali il telefono usa anche il video verticale `video/video-1-mobile.mp4`, che accompagna tutte e 6 le fasi.
 
 Finché manca anche solo una delle 6 foto, il telefono usa le foto orizzontali (fascia panoramica). Se la piscina nelle foto verticali è più in alto o più in basso, si regola `mobileFocus` in `main.js`.

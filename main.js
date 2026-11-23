@@ -19,9 +19,9 @@ const SETTINGS = {
   phoneWidth: 1.04,      // telefono in verticale: larghezza dell'immagine rispetto allo schermo (1 = intera)
   phoneCenter: 0.47,     // telefono in verticale: altezza della fascia (0.5 = centro, più basso = più in basso)
   videoSharpen: 0.7,     // nitidezza del video (0 = nessuna, 1.2 = molta)
-  // Telefono in verticale: se ci sono tutte e 6 le fasi verticali vengono usate al posto di quelle orizzontali
-  // (senza video: prato → scavo usa la stessa transizione delle altre fasi). Se ne manca anche una,
-  // il sito usa le foto orizzontali con la fascia panoramica.
+  // Telefono in verticale: se ci sono tutte e 6 le fasi verticali vengono usate al posto di quelle orizzontali,
+  // insieme al video verticale (video/video-1-mobile.mp4). Se ne manca anche una,
+  // il sito usa le foto orizzontali con la fascia panoramica (e il video orizzontale).
   mobileDir: 'fasi-mobile/',              // fasi-mobile/01.jpg ... 06.jpg
   mobileFocus: { x: 0.5, y: 0.67 },       // dove si trova la piscina nelle foto verticali (0-1 dall'alto a sinistra)
 };
@@ -135,7 +135,8 @@ scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material));
 
 /* ---------- Caricamento foto ---------- */
 const loader = document.getElementById('loader');
-const VIDEO_URL = 'video/video-1.mp4';
+const VIDEO_URL = 'video/video-1.mp4';               // computer e tablet
+const VIDEO_URL_MOBILE = 'video/video-1-mobile.mp4';  // telefono in verticale (720×1278, più leggero)
 const textures = [];
 const texLoader = new THREE.TextureLoader();
 const IS_PORTRAIT = window.innerWidth / window.innerHeight < 0.8;
@@ -152,7 +153,8 @@ const mobilePaths = PHASES.map((ph, i) => `${SETTINGS.mobileDir}0${i + 1}.jpg`);
       uniforms.uBandOn.value = 0;
       uniforms.uFocus.value.set(SETTINGS.mobileFocus.x, 1 - SETTINGS.mobileFocus.y);
     }
-    if (!usingMobileSet) startVideo(VIDEO_URL);
+    videoKeys = usingMobileSet ? VIDEO_KEYS_MOBILE : VIDEO_KEYS;
+    startVideo(usingMobileSet ? VIDEO_URL_MOBILE : VIDEO_URL);
     loader.classList.add('is-hidden');
   })
   .catch(() => { loader.querySelector('.loader-label').textContent = 'Foto non trovate nella cartella "fasi"'; });
@@ -160,9 +162,12 @@ const mobilePaths = PHASES.map((ph, i) => `${SETTINGS.mobileDir}0${i + 1}.jpg`);
 /* ---------- Video di tutto il cantiere (prato → piscina piena), guidato dallo scroll ----------
    Il video (Kling 4.0, 20 secondi) attraversa tutte e 6 le fasi: il fotogramma mostrato
    dipende da quanto hai scorso. All'inizio si fonde con la foto 01, alla fine con la foto 06.
-   Se il video non è pronto (o sul telefono in verticale), restano le transizioni a macchie tra le foto. */
-// Secondo del video in cui si vede ciascuna fase (01 … 06). Se rigeneri il video, vanno ricontrollati.
-const VIDEO_KEYS = [0, 3.3, 5.8, 9.6, 14.1, 20.0];
+   Ci sono due video: orizzontale (computer e tablet) e verticale (telefono, con le foto di "fasi-mobile").
+   Se il video non è pronto, restano le transizioni a macchie tra le foto. */
+// Secondo del video in cui si vede ciascuna fase (01 … 06). Se rigeneri un video, vanno ricontrollati.
+const VIDEO_KEYS = [0, 3.3, 5.8, 9.6, 14.1, 20.0];          // video orizzontale
+const VIDEO_KEYS_MOBILE = [0, 2.9, 5.3, 10.1, 14.1, 20.0];  // video verticale
+let videoKeys = VIDEO_KEYS;
 const COVER_WATERMARK = false; // il video nuovo non ha la scritta "KlingAI": niente toppa in basso a destra
 const video = document.createElement('video');
 video.muted = true; video.playsInline = true; video.preload = 'auto';
@@ -247,8 +252,8 @@ function startVideo(url) {
   fetch(url)
     .then((r) => { if (!r.ok) throw new Error(r.status); return r.blob(); })
     .then((b) => { video.src = URL.createObjectURL(b); video.load(); })
-    // se il video verticale non c'è, sul telefono resta la transizione a macchie tra le foto
-    .catch(() => { if (url === VIDEO_URL) { video.src = VIDEO_URL; video.load(); } });
+    // se il fetch non riesce si prova a caricare il video direttamente
+    .catch(() => { video.src = url; video.load(); });
 }
 window.__heroVideo = video; window.__heroFrame = frameCanvas; // utili per il debug dalla console
 
@@ -298,7 +303,7 @@ function tick(now) {
     const x = pS * segs;
     const i = Math.min(Math.floor(x), segs - 1);
     const f = clamp((x - i - SETTINGS.hold[0]) / (SETTINGS.hold[1] - SETTINGS.hold[0])); // avanza in modo uniforme con lo scroll
-    seekVideo(VIDEO_KEYS[i] + f * (VIDEO_KEYS[i + 1] - VIDEO_KEYS[i])); // ogni tratto di scroll = il pezzo di video tra due fasi
+    seekVideo(videoKeys[i] + f * (videoKeys[i + 1] - videoKeys[i])); // ogni tratto di scroll = il pezzo di video tra due fasi
     if (videoReady) {
       // il fotogramma segue lo scroll; all'inizio si fonde con la foto 01, alla fine con la foto 06
       uniforms.tA.value = videoTex;
