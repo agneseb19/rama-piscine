@@ -157,11 +157,13 @@ const mobilePaths = PHASES.map((ph, i) => `${SETTINGS.mobileDir}0${i + 1}.jpg`);
   })
   .catch(() => { loader.querySelector('.loader-label').textContent = 'Foto non trovate nella cartella "fasi"'; });
 
-/* ---------- Video del primo passaggio (prato → scavo), guidato dallo scroll ----------
-   Tra la foto 01 e la foto 02 non c'è la dissolvenza a macchie: si vede il video,
-   e il fotogramma mostrato dipende da quanto hai scorso. Se il video non è pronto,
-   resta la transizione originale. */
-const VIDEO_SEGMENT = 0; // il tratto tra fase 01 e fase 02
+/* ---------- Video di tutto il cantiere (prato → piscina piena), guidato dallo scroll ----------
+   Il video (Kling 4.0, 20 secondi) attraversa tutte e 6 le fasi: il fotogramma mostrato
+   dipende da quanto hai scorso. All'inizio si fonde con la foto 01, alla fine con la foto 06.
+   Se il video non è pronto (o sul telefono in verticale), restano le transizioni a macchie tra le foto. */
+// Secondo del video in cui si vede ciascuna fase (01 … 06). Se rigeneri il video, vanno ricontrollati.
+const VIDEO_KEYS = [0, 3.3, 5.8, 9.6, 14.1, 20.0];
+const COVER_WATERMARK = false; // il video nuovo non ha la scritta "KlingAI": niente toppa in basso a destra
 const video = document.createElement('video');
 video.muted = true; video.playsInline = true; video.preload = 'auto';
 video.setAttribute('muted', ''); video.setAttribute('playsinline', '');
@@ -203,7 +205,7 @@ function coverWatermark() {
 function grabFrame() {
   if (video.readyState < 2) return;
   frameCtx.drawImage(video, 0, 0, frameCanvas.width, frameCanvas.height);
-  coverWatermark();
+  if (COVER_WATERMARK) coverWatermark();
   if (!videoReady) {
     // controlla che il fotogramma non sia nero prima di usarlo
     probeCtx.drawImage(frameCanvas, 0, 0, 8, 8);
@@ -232,9 +234,9 @@ video.addEventListener('seeked', () => {
   grabFrame();
   if (Math.abs(video.currentTime - videoTarget) > 1 / 50) goTo(videoTarget); // insegue lo scroll
 });
-function seekVideo(f) {
+function seekVideo(t) {
   if (!video.duration) return;
-  videoTarget = Math.min(video.duration - 0.04, f * video.duration);
+  videoTarget = clamp(t, 0, video.duration - 0.04);
   // se un seek è rimasto appeso più di 400ms lo rilanciamo
   const stuck = seekStarted && performance.now() - seekStarted > 400;
   if ((!seekStarted || stuck) && Math.abs(video.currentTime - videoTarget) > 1 / 50) goTo(videoTarget);
@@ -296,13 +298,13 @@ function tick(now) {
     const x = pS * segs;
     const i = Math.min(Math.floor(x), segs - 1);
     const f = clamp((x - i - SETTINGS.hold[0]) / (SETTINGS.hold[1] - SETTINGS.hold[0])); // avanza in modo uniforme con lo scroll
-    if (i === VIDEO_SEGMENT) seekVideo(f);
-    if (i === VIDEO_SEGMENT && videoReady) {
-      // tratto video: il fotogramma segue lo scroll; ai due capi si fonde con la foto 01 e la foto 02
+    seekVideo(VIDEO_KEYS[i] + f * (VIDEO_KEYS[i + 1] - VIDEO_KEYS[i])); // ogni tratto di scroll = il pezzo di video tra due fasi
+    if (videoReady) {
+      // il fotogramma segue lo scroll; all'inizio si fonde con la foto 01, alla fine con la foto 06
       uniforms.tA.value = videoTex;
-      const atEnd = f > 0.5;
-      uniforms.tB.value = textures[atEnd ? i + 1 : i];
-      uniforms.uFade.value = atEnd ? smooth(0.9, 1, f) : 1 - smooth(0, 0.06, f);
+      const atStart = i === 0 && f < 0.5, atEnd = i === segs - 1 && f >= 0.5;
+      uniforms.tB.value = textures[atEnd ? segs : 0];
+      uniforms.uFade.value = atStart ? 1 - smooth(0, 0.06, f) : atEnd ? smooth(0.9, 1, f) : 0;
       uniforms.uMix.value = 0;
       uniforms.uSharpen.value = SETTINGS.videoSharpen;
     } else {

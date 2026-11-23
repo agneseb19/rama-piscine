@@ -20,7 +20,7 @@ poi apri <http://localhost:8000>.
 | `style.css`, `main.js` | La hero: il cantiere che diventa piscina scorrendo (three.js + Lenis) |
 | `home.css`, `home.js` | Tutto ciò che viene dopo la hero (GSAP + ScrollTrigger) |
 | `fasi/` | Le 6 immagini delle fasi della hero |
-| `video/video-1.mp4` | Il passaggio prato → scavo, guidato dallo scroll |
+| `video/video-1.mp4` | Tutto il cantiere, dal prato alla piscina piena (Kling 4.0, 20 s, 1080p), guidato dallo scroll. I secondi di ogni fase sono in `VIDEO_KEYS` in `main.js` |
 | `img/` | Foto originali dei lavori e loghi di marchi e partner |
 | `img/hd/` | Foto migliorate e raddrizzate usate nella pagina |
 
@@ -29,7 +29,6 @@ poi apri <http://localhost:8000>.
 - Valutazione media e numero di recensioni Google (segnaposto in `index.html`, cerca "DA AGGIORNARE").
 - Le pagine interne: `chi-siamo.html`, `servizi.html`, `le-nostre-piscine.html`, `contatti.html`, `configuratore.html`.
 - Il form di consulenza oggi apre l'app di posta: va collegato a un servizio di invio moduli.
-- Video della hero: esportarlo in 1080p o più, senza filigrana.
 
 ## Hero sul telefono: versioni verticali
 
